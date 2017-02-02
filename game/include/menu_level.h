@@ -9,9 +9,10 @@
 
 #include <memory>
 #include "player.h"
+#include "level.h"
 
 namespace SoMTD {
-    class MenuLevel : public ijengine::Level, public ijengine::GameEventsListener {
+    class MenuLevel : public SoMTD::Level {
     public:
         MenuLevel(std::string current_map_name, std::string next_map_name, std::string p_audio);
         ~MenuLevel();
@@ -19,6 +20,7 @@ namespace SoMTD {
         void exit_game();
         void update_next_level(std::string next_map);
         std::string m_level_name="";
+        ijengine::Level* to_ijengine_type();
 
     protected:
         void draw_self(ijengine::Canvas *c, unsigned, unsigned);
@@ -27,16 +29,16 @@ namespace SoMTD {
         bool on_event(const ijengine::GameEvent&);
         std::string audio() const;
         std::string next() const;
-        bool done() const;
         Player *player() const;
+        bool done() const;
 
     private:
         std::string m_next;
         std::string m_audio="";
-        bool m_done;
         std::shared_ptr<ijengine::Texture> m_texture;
         void load_buttons();
         Player* m_player;
+        bool m_done;
     };
 }
 

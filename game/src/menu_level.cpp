@@ -8,12 +8,13 @@
 #include "panel.h"
 #include "player.h"
 
-SoMTD::MenuLevel::MenuLevel(std::string mapname, std::string _new_map_path, std::string p_audio) :
-    m_next(_new_map_path),
-    m_audio(p_audio),
-    m_done(false)
+SoMTD::MenuLevel::MenuLevel(std::string mapname, std::string _new_map_path, std::string p_audio) : SoMTD::Level(mapname, _new_map_path, p_audio)
 {
+    m_next = _new_map_path;
+    m_audio = p_audio;
+    m_done = false;
     m_level_name = mapname;
+
     m_player = new SoMTD::Player();
     if (mapname == "mainmenu")
         m_texture = ijengine::resources::get_texture("Menu.png");
@@ -52,7 +53,6 @@ SoMTD::MenuLevel::draw_self_after(ijengine::Canvas* canvas, unsigned, unsigned)
         canvas->draw(std::string("Música: Raul Marques\n"), m_x+70, m_y+140);
     }
 }
-
 
 bool
 SoMTD::MenuLevel::on_event(const ijengine::GameEvent&)
@@ -146,4 +146,9 @@ void
 SoMTD::MenuLevel::update_next_level(std::string next_map)
 {
     m_next = next_map;
+}
+
+ijengine::Level*
+SoMTD::MenuLevel::to_ijengine_type() {
+        return (ijengine::Level*) this;
 }
