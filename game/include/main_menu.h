@@ -22,6 +22,10 @@ namespace SoMTD {
                 string next() const;
                 string audio() const;
                 bool on_event(const ijengine::GameEvent& event);
+                void load_buttons();
+                bool m_done;
+                void finish();
+                void update_next_level(std::string next_map);
 
         protected:
                 void update_self(unsigned now, unsigned last);
@@ -31,7 +35,6 @@ namespace SoMTD {
         private:
                 string m_next;
                 string m_audio;
-                bool m_done;
                 Player* m_player;
                 std::shared_ptr<ijengine::Texture> m_texture;
         };
