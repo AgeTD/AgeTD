@@ -10,6 +10,8 @@
 #include <ijengine/engine.h>
 #include <ijengine/texture.h>
 
+using std::tie;
+
 SoMTD::MovableUnit::MovableUnit(
         std::pair<int, int> s_pos,
         std::pair<int, int> e_pos,
@@ -215,9 +217,7 @@ SoMTD::MovableUnit::spawn()
     m_active = true;
     m_moving = false;
     m_current_instruction = 0;
-    std::pair<int, int> pos = SoMTD::tools::grid_to_isometric(start_position.first, start_position.second, 100, 81, 1024/2, 11);
-    m_x = pos.first;
-    m_y = pos.second;
+    tie(m_x, m_y) = SoMTD::tools::grid_to_isometric(start_position.first, start_position.second, 100, 81, 1024/2, 11);
 }
 
 bool

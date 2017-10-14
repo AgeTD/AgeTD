@@ -62,8 +62,6 @@ SoMTD::Animation::draw(ijengine::Canvas *c, unsigned, unsigned)
     m_texture = ijengine::resources::get_texture(m_file_path);
 
     if (m_file_path == "projectiles/projetil_poseidon.png" || m_file_path == "projectiles/projetil_caveira.png" || m_file_path == "projectiles/projetil_zeus2.png") {
-        // printf("desenhando..\n");
-        // std::cout << "position: " << m_screen_position.first << ", " << m_screen_position.second << std::endl;
         c->draw(m_texture.get(), m_tile.first, m_tile.second);
     } else
         c->draw(m_texture.get(), rect, m_screen_position.first+(100-m_width)/2, m_screen_position.second+81/2-m_height);

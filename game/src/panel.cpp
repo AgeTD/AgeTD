@@ -54,7 +54,6 @@ SoMTD::Panel::draw_self_after(ijengine::Canvas *c, unsigned, unsigned)
           c->draw("10000", 180 , 573);
 }
 
-
 void
 SoMTD::Panel::update_self(unsigned, unsigned)
 {

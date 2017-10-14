@@ -2,6 +2,7 @@
 #include "level_factory.h"
 #include "geometric_level.h"
 #include "menu_level.h"
+#include "main_menu.h"
 
 #include <string>
 
@@ -9,7 +10,7 @@ ijengine::Level *
 SoMTD::LevelFactory::make_level(const string& level_id)
 {
     if (level_id == "mainmenu")
-        return new SoMTD::MenuLevel("mainmenu", "map001", "res/sound_efects/music/somtd-menu.ogg");
+        return new SoMTD::MainMenu();
     else if (level_id == "map001")
         return new SoMTD::MapLevel("map002", "map001", "res/sound_efects/music/gameplay.ogg");
     else if (level_id == "map002")
