@@ -47,5 +47,4 @@ namespace SoMTD {
         double yg = (-(double)(xs-x0)/w) + (ys-y0)/(h - 2.0*offset);
         return std::pair<int, int>(xg, yg);
     }
-
 }
