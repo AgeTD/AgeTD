@@ -15,10 +15,6 @@
 SoMTD::OptionsButton::OptionsButton(ijengine::Level *l) :
         m_menu_level(l)
 {
-        m_texture = ijengine::resources::get_texture("menuopcoes.png");
-        m_mouseover_texture = ijengine::resources::get_texture("menuopcoes.png");
-        m_x = 8;
-        m_y = 600;
         ijengine::event::register_listener(this);
 }
 
@@ -27,43 +23,50 @@ SoMTD::OptionsButton::~OptionsButton()
         ijengine::event::unregister_listener(this);
 }
 
-void
-SoMTD::OptionsButton::update_self(unsigned, unsigned)
+
+std::string
+SoMTD::OptionsButton::audio() const
 {
+        return "res/sound_efects/menu-button.ogg";
 }
 
-bool
-SoMTD::OptionsButton::on_event(const ijengine::GameEvent& event)
+std::string
+SoMTD::OptionsButton::next_level() const
 {
-        double x_pos = event.get_property<double>("x");
-        double y_pos = event.get_property<double>("y");
-
-        if (x_pos >= m_x && x_pos<m_x+m_texture->w() && y_pos>m_y && y_pos<m_y+m_texture->h()) {
-                if (event.id() == SoMTD::MOUSEOVER) {
-                        m_mouseover = true;
-                } else if (event.id() == SoMTD::CLICK) {
-                        dynamic_cast<SoMTD::MainMenu*>(m_menu_level)->update_next_level("menuoptions");
-                        dynamic_cast<SoMTD::MainMenu*>(m_menu_level)->finish();
-                        ijengine::audio::play_sound_effect("res/sound_efects/menu-button.ogg");
-                        return true;
-                }
-        } else {
-                m_mouseover = false;
-        }
-        return false;
+        return "menuoptions";
 }
 
-void
-SoMTD::OptionsButton::draw_self(ijengine::Canvas *c, unsigned, unsigned)
+int
+SoMTD::OptionsButton::x() const
 {
-        if (m_mouseover) {
-                c->draw(m_mouseover_texture.get(), m_x, m_y);
-        } else  {
-                c->draw(m_texture.get(), m_x, m_y);
-        }
+        return 8;
 }
 
-void
-SoMTD::OptionsButton::draw_self_after(ijengine::Canvas *c, unsigned, unsigned)
+int
+SoMTD::OptionsButton::y() const
 {
+        return 600;
+}
+
+std::shared_ptr<ijengine::Texture>
+SoMTD::OptionsButton::texture() const
+{
+        return ijengine::resources::get_texture("menuopcoes.png");
+}
+
+std::shared_ptr<ijengine::Texture>
+SoMTD::OptionsButton::mouseover_texture() const
+{
+        return ijengine::resources::get_texture("menuopcoes.png");
+}
+
+using SoMTD::MainMenu;
+
+void
+SoMTD::OptionsButton::transition()
+{
+        MainMenu* current_level = dynamic_cast<MainMenu*>(m_menu_level);
+        current_level->update_next_level(next_level());
+        current_level->finish();
+        ijengine::audio::play_sound_effect(audio());
 }

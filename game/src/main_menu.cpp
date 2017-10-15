@@ -12,6 +12,7 @@
 #include <string>
 #include <memory>
 #include "player.h"
+#include <iostream>
 
 SoMTD::MainMenu::MainMenu() : m_done(false)
 {
@@ -26,6 +27,7 @@ SoMTD::MainMenu::MainMenu() : m_done(false)
 
 SoMTD::MainMenu::~MainMenu()
 {
+        delete m_player;
         ijengine::event::unregister_listener(this);
 }
 
