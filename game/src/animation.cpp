@@ -20,6 +20,10 @@
 #include "animation.hpp"
 #include "./game.h"
 
+/*
+ * Class that handles animation and sprite moving
+ */
+
 SoMTD::Animation::Animation(
     int new_grid_x, int new_grid_y, std::string new_file_path,
     StateStyle new_state_style, int new_frame_per_state, int new_total_states) {
@@ -36,61 +40,78 @@ SoMTD::Animation::Animation(
     m_actual_frame = 0;
 
     if (new_state_style == Animation::StateStyle::STATE_PER_COLUMN) {
-        m_width = m_texture->w()/m_total_states;
-        m_height = m_texture->h()/m_frame_per_state;
+      m_width = m_texture->w()/m_total_states;
+      m_height = m_texture->h()/m_frame_per_state;
     } else if (new_state_style == Animation::StateStyle::STATE_PER_LINE) {
-        m_width = m_texture->w()/m_frame_per_state;
-        m_height = m_texture->h()/m_total_states;
+      m_width = m_texture->w()/m_frame_per_state;
+      m_height = m_texture->h()/m_total_states;
     } else if (new_state_style == Animation::StateStyle::EVERYTHING_PER_LINE) {
-        m_width = m_texture->w()/(m_total_states);
-        m_width /= m_frame_per_state;
-        m_height = m_texture->h();
+      m_width = m_texture->w()/(m_total_states);
+      m_width /= m_frame_per_state;
+      m_height = m_texture->h();
     }
 }
+
+SoMTD::Animation::~Animation() { }
 
 void
 SoMTD::Animation::update_screen_position(std::pair<int, int> new_pos) {
     m_screen_position = new_pos;
 }
 
-SoMTD::Animation::~Animation() { }
+int
+SoMTD::Animation::actual_frame() const {
+  return m_actual_frame;
+}
+
+void
+SoMTD::Animation::update_frame(int now) {
+  m_actual_frame = now;
+}
 
 void
 SoMTD::Animation::next_frame() {
-    if (m_actual_frame == m_frame_per_state-1) {
-        m_actual_frame = 0;
-    } else {
-        m_actual_frame += 1;
-    }
+  update_frame(actual_frame() % frame_per_state() + 1);
+}
+
+int
+SoMTD::Animation::actual_state() const
+{
+  return m_actual_state;
 }
 
 void
 SoMTD::Animation::draw(ijengine::Canvas *c, unsigned, unsigned) {
-    ijengine::Rectangle rect(0, 0, m_width, m_height);
-    if (m_state_style ==  StateStyle::STATE_PER_COLUMN) {
-        rect.set_position(m_width*m_actual_state, m_height*m_actual_frame);
-    } else if (m_state_style == StateStyle::STATE_PER_LINE) {
-        rect.set_position(m_width*m_actual_frame, m_height*m_actual_state);
-    } else if (m_state_style == 0x02) {
-        rect.set_position(
-            (m_actual_frame*m_width)+(m_width*m_frame_per_state*m_actual_state),
-            0);
-    }
+  ijengine::Rectangle rect(0, 0, m_width, m_height);
+  if (m_state_style ==  STATE_PER_COLUMN) {
+    // decrease one in actual_frame because the first index is 0
+    rect.set_position(
+        width()*actual_state(),
+        height()*(actual_frame()-1));
+  } else if (m_state_style == STATE_PER_LINE) {
+    rect.set_position(
+        width()*(actual_frame()-1),
+        height()*actual_state());
+  } else if (m_state_style == EVERYTHING_PER_LINE) {
+    rect.set_position(
+        ((m_actual_frame-1)*m_width)+(m_width*m_frame_per_state*m_actual_state),
+        0);
+  }
 
-    m_texture = ijengine::resources::get_texture(m_file_path);
+  m_texture = ijengine::resources::get_texture(m_file_path);
 
-    if (
-        m_file_path == "projectiles/projetil_poseidon.png" ||
-        m_file_path == "projectiles/projetil_caveira.png" ||
-        m_file_path == "projectiles/projetil_zeus2.png") {
-        c->draw(m_texture.get(), m_tile.first, m_tile.second);
-    } else {
-        c->draw(
-            m_texture.get(),
-            rect,
-            m_screen_position.first+(100-m_width)/2,
-            m_screen_position.second+81/2-m_height);
-    }
+  if (
+      m_file_path == "projectiles/projetil_poseidon.png" ||
+      m_file_path == "projectiles/projetil_caveira.png" ||
+      m_file_path == "projectiles/projetil_zeus2.png") {
+    c->draw(m_texture.get(), m_tile.first, m_tile.second);
+  } else {
+    c->draw(
+        m_texture.get(),
+        rect,
+        m_screen_position.first+(100-m_width)/2,
+        m_screen_position.second+81/2-m_height);
+  }
 }
 
 void
@@ -103,33 +124,34 @@ SoMTD::Animation::screen_position() const {
 
 std::pair<int, int>
 SoMTD::Animation::tile() const {
+  // TODO: this is unnecessary
     return m_tile;
 }
 
 void
 SoMTD::Animation::update_texture(std::string new_path) {
-    m_file_path = new_path;
-    m_texture = ijengine::resources::get_texture(m_file_path);
+  m_file_path = new_path;
+  m_texture = ijengine::resources::get_texture(m_file_path);
 }
 
 std::shared_ptr<ijengine::Texture>
 SoMTD::Animation::texture() const {
-    return m_texture;
+  return m_texture;
 }
 
 int
 SoMTD::Animation::width() const {
-    return m_width;
+  return m_width;
 }
 
 int
 SoMTD::Animation::height() const {
-    return m_height;
+  return m_height;
 }
 
 int
 SoMTD::Animation::frame_per_state() const {
-    return m_frame_per_state;
+  return m_frame_per_state;
 }
 
 void

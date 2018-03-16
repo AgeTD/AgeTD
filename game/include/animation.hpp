@@ -55,12 +55,15 @@ class Animation {
       void update_texture(std::string new_path);
       void update_screen_position(std::pair<int, int> new_pos);
       void update_tile(std::pair<int, int> new_pos);
+      void update_frame(int now);
 
       std::pair<int, int> screen_position() const;
       std::pair<int, int> tile() const;
       std::shared_ptr<ijengine::Texture> texture() const;
       int width() const;
+      int actual_state() const;
       int height() const;
+      int actual_frame() const;
       int frame_per_state() const;
       void update_direction(SoMTD::Animation::DirectionState newstate);
 
