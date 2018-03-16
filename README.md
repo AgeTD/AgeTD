@@ -15,6 +15,10 @@ A 2d-isometric Tower Defense based on mythology.
 3. Type `make all`
 4. Run it! The game will be at the `bin` directory
 
+## Running Lint
+1. Install cpplint: `pip install cpplint`
+2. Run it in the desired file: `cpplint include/animation.h`
+
 [About Us](https://github.com/StrifeOfMythologyTD/SoMTD/wiki/Documento-de-Apresenta%C3%A7%C3%A3o-da-Equipe)
 [About the
 Game](https://github.com/StrifeOfMythologyTD/SoMTD/wiki/Conceito-do-Jogo)
