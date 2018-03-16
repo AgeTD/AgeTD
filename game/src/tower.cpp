@@ -7,7 +7,7 @@
 
 #include "game.h"
 #include "tower.h"
-#include "animation.h"
+#include "animation.hpp"
 
 SoMTD::Tower::Tower(std::string texture_name, unsigned id, int x, int y, std::string image_selected, Player *p,
         Animation::StateStyle statestyle, int frame_per_state, int total_states, float newattackspeed,

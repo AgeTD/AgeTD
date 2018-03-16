@@ -1,7 +1,7 @@
 #include "movable_unit.h"
 
 #include "game.h"
-#include "animation.h"
+#include "animation.hpp"
 #include <list>
 #include <algorithm>
 #include <cmath>

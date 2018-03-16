@@ -11,7 +11,7 @@
 #include <set>
 #include <vector>
 #include "player.h"
-#include "animation.h"
+#include "animation.hpp"
 
 namespace SoMTD {
 

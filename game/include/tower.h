@@ -7,7 +7,7 @@
 
 #include <memory>
 #include "player.h"
-#include "animation.h"
+#include "animation.hpp"
 #include "movable_unit.h"
 #include "projectile.h"
 

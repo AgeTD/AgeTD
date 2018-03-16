@@ -2,6 +2,7 @@
 #define WAVE_H
 
 #include <vector>
+#include <string>
 #include <list>
 #include "movable_unit.h"
 

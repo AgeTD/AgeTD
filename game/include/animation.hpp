@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with SoMTD. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef GAME_INCLUDE_ANIMATION_H_
-#define GAME_INCLUDE_ANIMATION_H_
+#ifndef GAME_INCLUDE_ANIMATION_HPP_
+#define GAME_INCLUDE_ANIMATION_HPP_
 
 #include <ijengine/canvas.h>
 #include <ijengine/game_object.h>
@@ -81,4 +81,4 @@ class Animation {
 };
 }  // namespace SoMTD
 
-#endif  // GAME_INCLUDE_ANIMATION_H_
+#endif  // GAME_INCLUDE_ANIMATION_HPP_
