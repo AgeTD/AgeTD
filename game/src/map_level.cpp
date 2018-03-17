@@ -27,6 +27,7 @@
 #include "button.h"
 #include "movable_unit.h"
 #include "medusa.hpp"
+#include "cyclop.hpp"
 
 SoMTD::MapLevel::MapLevel(const string& next_level, const string& current_level, const string& audio_file_path) :
     m_next(next_level),
@@ -431,6 +432,10 @@ SoMTD::MapLevel::load_spawners()
   for (std::string it : unit_names) {
     if (it == "medusa") {
       myunit = new Medusa(origin, destiny, m_labyrinth->solution, m_player);
+      spawner = new SoMTD::Spawner<MovableUnit>(myunit);
+      spawners.push_back(spawner);
+    } else if (it == "cyclop") {
+      myunit = new Cyclop(origin, destiny, m_labyrinth->solution, m_player);
       spawner = new SoMTD::Spawner<MovableUnit>(myunit);
       spawners.push_back(spawner);
     } else {
