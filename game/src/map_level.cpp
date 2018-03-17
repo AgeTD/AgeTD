@@ -32,6 +32,7 @@
 #include "harpy.hpp"
 #include "zeus_tower.hpp"
 #include "hades_tower.hpp"
+#include "poseidon_tower.hpp"
 
 SoMTD::MapLevel::MapLevel(const string& next_level, const string& current_level, const string& audio_file_path) :
     m_next(next_level),
@@ -483,7 +484,7 @@ SoMTD::MapLevel::build_tower(unsigned tower_id, int x, int y)
     case 0x11:
     case 0x12:
     case 0x13:
-      // TODO: SoMTD::Tower *tower = new PoseidonTower(x, y, tower_id+1, m_player);
+      tower = new PoseidonTower(x, y, tower_id+1-0x10, m_player);
       break;
 
     case 0x100:

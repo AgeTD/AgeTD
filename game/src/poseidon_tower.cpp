@@ -15,13 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with SoMTD. If not, see <http://www.gnu.org/licenses/>.
 
-#include "./hades_tower.hpp"
+#include "./poseidon_tower.hpp"
 #include "./tower.h"
 
 namespace SoMTD {
-HadesTower::HadesTower(int _x, int _y, int _level, Player* _player) : Tower(
+PoseidonTower::PoseidonTower(
+    int _x, int _y, int _level, Player* _player) : Tower(
     _texture_path()[_level - 1],
-    _level + 0x100 - 1,
+    _level + 0x10 - 1,
     _x,
     _y,
     _selected_texture_path()[_level - 1],
@@ -34,50 +35,50 @@ HadesTower::HadesTower(int _x, int _y, int _level, Player* _player) : Tower(
   ) { }
 
 std::vector<std::string>
-HadesTower::_texture_path() const {
+PoseidonTower::_texture_path() const {
   // the first texture is for a level 1 zeus tower, etc
   return std::vector<std::string> {
-    "towers/tower_256.png",
-    "towers/tower_257.png",
-    "towers/tower_258.png",
-    "towers/tower_259.png"
+    "towers/tower_16.png",
+    "towers/tower_17.png",
+    "towers/tower_18.png",
+    "towers/tower_19.png"
   };
 }
 
 std::vector<std::string>
-HadesTower::_selected_texture_path() const {
+PoseidonTower::_selected_texture_path() const {
   // the first texture is for a level 1 zeus tower, etc
   return std::vector<std::string> {
-    "towers/tower_256_holding.png",
-    "towers/tower_257_holding.png",
-    "towers/tower_258_holding.png",
-    "towers/tower_259_holding.png"
+    "towers/tower_16_holding.png",
+    "towers/tower_17_holding.png",
+    "towers/tower_18_holding.png",
+    "towers/tower_19_holding.png"
   };
 }
 
 std::vector<double>
-HadesTower::_attack_speed() const {
+PoseidonTower::_attack_speed() const {
   return std::vector<double> {
-    0.3, 0.3, 0.2, 0.1
+    3.0, 2.0, 2.0, 1.5
   };
 }
 
 std::vector<double>
-HadesTower::_damage() const {
+PoseidonTower::_damage() const {
   return std::vector<double> {
-    20, 20, 30, 30
+    0, 0, 0, 0
   };
 }
 
 std::vector<int>
-HadesTower::_frame_per_state() const {
+PoseidonTower::_frame_per_state() const {
   return std::vector<int> {
-    6, 6, 6, 1
+    4, 4, 1, 1
   };
 }
 
 int
-HadesTower::_total_states() const {
+PoseidonTower::_total_states() const {
   return 1;
 }
 }  // namespace SoMTD
