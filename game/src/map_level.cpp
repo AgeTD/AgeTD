@@ -413,10 +413,10 @@ void
 SoMTD::MapLevel::load_spawners()
 {
   std::vector<MovableUnit*> units = {
-    new Cyclop(origin, destiny, m_labyrinth->solution, m_player)
+    new Cyclop(origin, destiny, m_labyrinth->solution, m_player),
     new Medusa(origin, destiny, m_labyrinth->solution, m_player),
     new Harpy(origin, destiny, m_labyrinth->solution, m_player),
-    new Centaur(origin, destiny, m_labyrinth->solution, m_player),
+    new Centaur(origin, destiny, m_labyrinth->solution, m_player)
   };
 
   for (MovableUnit *unit : units) {
