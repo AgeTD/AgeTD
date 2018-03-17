@@ -32,7 +32,7 @@ namespace SoMTD {
 
 using std::tie;
 
-SoMTD::MovableUnit::MovableUnit(
+MovableUnit::MovableUnit(
     std::pair<int, int> s_pos,
     std::pair<int, int> e_pos,
     std::string t_path,
@@ -106,6 +106,7 @@ MovableUnit::y() const {
 
 void
 MovableUnit::update_self(unsigned now, unsigned) {
+  // TODO: refactor this
   if (m_next_frame < now) {
     m_next_frame = now + (1000/m_animation->frame_per_state());
     m_animation->next_frame();
@@ -187,8 +188,8 @@ MovableUnit::update_self(unsigned now, unsigned) {
 
 void
 MovableUnit::die() {
-    m_active = false;
-    m_done = true;
+  m_active = false;
+  m_done = true;
 }
 
 bool
@@ -266,26 +267,6 @@ SoMTD::MovableUnit::move(int new_x, int new_y, unsigned) {
     animation()->update_direction(
         Animation::DirectionState::DIRECTION_LEFT);
   }
-}
-
-MovableUnit*
-MovableUnit::clone() {
-  return new MovableUnit(
-      start_position,
-      end_position,
-      texture_name,
-      m_labyrinth_path,
-      m_player,
-      m_state_style,
-      m_frame_per_state,
-      m_total_states,
-      m_initial_hp,
-      m_gold_award,
-      m_time_per_tile,
-      m_hp_discount_unit,
-      m_slowed_path,
-      m_bleeding_path,
-      m_poisoned_path);
 }
 
 bool

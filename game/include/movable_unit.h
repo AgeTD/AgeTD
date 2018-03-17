@@ -68,7 +68,7 @@ class MovableUnit : public GameObject, public GameEventsListener {
   void spawn();
   bool active() const;
   void move(int x, int y, unsigned now);
-  MovableUnit* clone();
+  virtual MovableUnit* _clone() = 0;
   void draw_self(ijengine::Canvas*, unsigned, unsigned);
   void draw_self_after(ijengine::Canvas*, unsigned, unsigned);
   void update_self(unsigned, unsigned);
@@ -96,6 +96,10 @@ class MovableUnit : public GameObject, public GameEventsListener {
       unsigned now,
       unsigned last);
   std::list<MovableUnit::Status> *status_list() const;
+  virtual std::string _texture_path() const = 0;
+  std::pair<int, int> end_position;
+  std::pair<int, int> start_position;
+  Player *m_player;
 
  protected:
   bool on_event(const ijengine::GameEvent& event);
@@ -105,8 +109,6 @@ class MovableUnit : public GameObject, public GameEventsListener {
   void die();
   bool m_done = false;
   bool m_enemy;
-  std::pair<int, int> end_position;
-  std::pair<int, int> start_position;
   std::pair<int, int> grid_position;
   std::shared_ptr<ijengine::Texture> m_texture;
   std::pair<int, int> desired_place;
@@ -116,7 +118,6 @@ class MovableUnit : public GameObject, public GameEventsListener {
   double m_y;
   unsigned int m_current_instruction;
   std::pair<double, double> m_movement_speed;
-  Player *m_player;
   int m_initial_hp = 100;
   int m_actual_hp = 100;
   int m_hp_discount_unit_win;

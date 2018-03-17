@@ -95,4 +95,13 @@ std::string
 Cyclop::_poison_texture_path() const {
   return "units/ciclope/ciclopsheet_verde.png";
 }
+
+Cyclop*
+Cyclop::_clone() {
+  return new Cyclop(
+      this->start_position,
+      this->end_position,
+      this->m_labyrinth_path,
+      this->m_player);
+}
 }  // namespace SoMTD

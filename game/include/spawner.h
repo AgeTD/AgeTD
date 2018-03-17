@@ -13,7 +13,7 @@ namespace SoMTD {
         };
 
         T* spawn_unit() {
-            return m_prototype->clone();
+            return m_prototype->_clone();
         };
 
     private:

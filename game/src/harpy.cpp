@@ -95,4 +95,13 @@ std::string
 Harpy::_poison_texture_path() const {
   return "units/harpia/harpiasheet_verde.png";
 }
+
+Harpy*
+Harpy::_clone() {
+  return new Harpy(
+      this->start_position,
+      this->end_position,
+      this->m_labyrinth_path,
+      this->m_player);
+}
 }  // namespace SoMTD

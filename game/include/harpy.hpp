@@ -40,6 +40,7 @@ class Harpy : public MovableUnit {
   int _total_states() const;
   int _gold_reward() const;
   int _hp() const;
+  Harpy* _clone();
   std::string _texture_path() const;
   std::string _poison_texture_path() const;
   std::string _slow_texture_path() const;

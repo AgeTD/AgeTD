@@ -95,4 +95,13 @@ std::string
 Medusa::_poison_texture_path() const {
   return "units/medusa/medusasheet_verde.png";
 }
+
+Medusa*
+Medusa::_clone() {
+  return new Medusa(
+      this->start_position,
+      this->end_position,
+      this->m_labyrinth_path,
+      this->m_player);
+}
 }  // namespace SoMTD
