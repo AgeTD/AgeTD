@@ -46,6 +46,8 @@ namespace SoMTD {
         unsigned id() const;
         SoMTD::Player* player() const;
         std::list<Projectile*>* projectiles() const;
+        int _x;
+        int _y;
 
     protected:
         void level_up();

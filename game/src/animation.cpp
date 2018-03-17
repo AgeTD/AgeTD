@@ -21,15 +21,18 @@
 #include "./game.h"
 
 /*
- * Class that handles animation and sprite moving
+ * Class that handles sprite animation logic
  */
 
 SoMTD::Animation::Animation(
-    int _x, int _y, std::string _texture_path,
-    StateStyle _state_style, int _frame_per_state, int _total_states) {
-  m_tile = std::make_pair(_x, _y);
+    int _x,
+    int _y,
+    std::string _texture_path,
+    StateStyle _state_style,
+    int _frame_per_state,
+    int _total_states) {
   m_screen_position = SoMTD::tools::grid_to_isometric(
-      m_tile.first, m_tile.second, 100, 81, 1024/2, 11);
+      _x, _y, 100, 81, 1024/2, 11);
   m_file_path = _texture_path;
   m_texture = ijengine::resources::get_texture(_texture_path);
   m_frame_per_state = _frame_per_state;
@@ -55,7 +58,7 @@ SoMTD::Animation::~Animation() { }
 
 void
 SoMTD::Animation::update_screen_position(std::pair<int, int> new_pos) {
-    m_screen_position = new_pos;
+  m_screen_position = new_pos;
 }
 
 int
@@ -100,10 +103,11 @@ SoMTD::Animation::draw(ijengine::Canvas *c, unsigned, unsigned) {
   m_texture = ijengine::resources::get_texture(m_file_path);
 
   if (
+      // TODO: projectiles are not isometric - isolate this
       m_file_path == "projectiles/projetil_poseidon.png" ||
       m_file_path == "projectiles/projetil_caveira.png" ||
       m_file_path == "projectiles/projetil_zeus2.png") {
-    c->draw(m_texture.get(), m_tile.first, m_tile.second);
+    c->draw(m_texture.get(), m_screen_position.first, m_screen_position.second);
   } else {
     c->draw(
         m_texture.get(),
@@ -118,13 +122,7 @@ SoMTD::Animation::draw_self_after(ijengine::Canvas*, unsigned, unsigned) { }
 
 std::pair<int, int>
 SoMTD::Animation::screen_position() const {
-    return m_screen_position;
-}
-
-std::pair<int, int>
-SoMTD::Animation::tile() const {
-  // TODO: this is unnecessary
-    return m_tile;
+  return m_screen_position;
 }
 
 void
@@ -155,12 +153,7 @@ SoMTD::Animation::frame_per_state() const {
 
 void
 SoMTD::Animation::update_direction(SoMTD::Animation::DirectionState ds) {
-    if (m_total_states >= static_cast<int>(ds)) {
-        m_actual_state = static_cast<int>(ds);
-    }
-}
-
-void
-SoMTD::Animation::update_tile(std::pair<int, int> to) {
-    m_tile = to;
+  if (m_total_states >= static_cast<int>(ds)) {
+    m_actual_state = static_cast<int>(ds);
+  }
 }
