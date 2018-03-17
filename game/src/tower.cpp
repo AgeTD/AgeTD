@@ -9,7 +9,7 @@
 #include "tower.h"
 #include "animation.hpp"
 
-SoMTD::Tower::Tower(std::string texture_name, unsigned id, int x, int y, std::string image_selected, Player *p,
+SoMTD::Tower::Tower(std::string texture_name, unsigned id, int _x, int _y, std::string image_selected, Player *p,
         Animation::StateStyle statestyle, int frame_per_state, int total_states, float newattackspeed,
         int newdamage) :
     m_image_path(texture_name),
@@ -24,9 +24,9 @@ SoMTD::Tower::Tower(std::string texture_name, unsigned id, int x, int y, std::st
     m_level = 1;
     m_range = 85.0;
     m_texture = ijengine::resources::get_texture(texture_name);
-    m_animation = new Animation(x, y, texture_name, statestyle, frame_per_state, total_states);
-    _x = x;
-    _y = y;
+    m_animation = new Animation(_x, _y, texture_name, statestyle, frame_per_state, total_states);
+    m_x = _x;
+    m_y = _y;
     ijengine::event::register_listener(this);
     mytimer = 0;
     m_cooldown = 0;
@@ -55,7 +55,7 @@ SoMTD::Tower::on_event(const ijengine::GameEvent& event)
         double x_pos = event.get_property<double>("x");
         double y_pos = event.get_property<double>("y");
         std::pair<int, int> click_as_tile = SoMTD::tools::isometric_to_grid(x_pos, y_pos, 100, 81, 1024/2, 11);
-        if (click_as_tile.first == _x && click_as_tile.second == _y) {
+        if (click_as_tile.first == x() && click_as_tile.second == y()) {
             m_mouseover = true;
         } else {
             m_mouseover = false;
@@ -66,7 +66,7 @@ SoMTD::Tower::on_event(const ijengine::GameEvent& event)
         double x_pos = event.get_property<double>("x");
         double y_pos = event.get_property<double>("y");
         std::pair<int, int> click_as_tile = SoMTD::tools::isometric_to_grid(x_pos, y_pos, 100, 81, 1024/2, 11);
-        if (click_as_tile.first == _x && click_as_tile.second == _y) {
+        if (click_as_tile.first == x() && click_as_tile.second == y()) {
             m_selected = true;
             m_animation->update_texture(m_imageselected_path);
             m_player->state = SoMTD::Player::PlayerState::SELECTED_TOWER;
@@ -372,4 +372,16 @@ SoMTD::Player*
 SoMTD::Tower::player() const
 {
     return m_player;
+}
+
+int
+SoMTD::Tower::x() const
+{
+  return m_x;
+}
+
+int
+SoMTD::Tower::y() const
+{
+  return m_y;
 }

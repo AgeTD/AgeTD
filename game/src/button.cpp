@@ -10,6 +10,7 @@
 #include "button.h"
 #include "luascript.h"
 #include <vector>
+#include <cmath>
 
 SoMTD::Button::Button(std::string texture_name, unsigned id, int x, int y, std::string mtexture, Player *m, int myp, std::vector<int> *args, std::string newdescription) :
     m_texture(ijengine::resources::get_texture(texture_name)),
@@ -150,12 +151,11 @@ SoMTD::Button::on_event(const ijengine::GameEvent& event)
                         result1 = (*m_infos)[1] & m_player->upgrade_state().to_ulong();
                         if ((m_player->gold() >= (*m_infos)[0]) and result1) {
                             m_player->state = Player::PlayerState::HOLDING_BUILD;
-                            last_bit_button = (m_id & 0xF);
                             last_bit_panel = m_player->tower_panel_id() & 0xF;
-                            if (last_bit_panel) {
-                                last_bit_panel = last_bit_panel << 4;
+                            desired_tower = m_id - 0x2000 + pow(16, m_player->tower_panel_id());
+                            if (m_player->tower_panel_id() == 0) { 
+                              desired_tower -= 1;
                             }
-                            desired_tower = last_bit_panel | last_bit_button;
                             m_player->update_desired_tower(desired_tower, (*m_infos)[0]);
                         } else {
                             printf("not enough gold or not requirements meet..\n");
@@ -213,42 +213,51 @@ SoMTD::Button::set_menu_level(SoMTD::MenuLevel* ml)
 }
 
 void
-SoMTD::Button::draw_self_after(ijengine::Canvas *c, unsigned, unsigned)
-{
-    if (m_id >= 0x2000 && m_id < 0x2100 && m_player->state == SoMTD::Player::PlayerState::OPENED_TOWER_PANEL) {
-        auto font = ijengine::resources::get_font("Inconsolata-Regular.ttf", 20);
-        std::string tower_name = "towers/tower_";
-        c->set_font(font);
-        std::ostringstream convert;
-        std::string expression;
-        expression = "";
-        convert << (*m_infos)[0];
-        expression.append(convert.str());
-        convert.clear();
-        convert.str("");
-        int panel_id = m_player->tower_panel_id();
-        if (panel_id != 0)
-            panel_id = 8 << m_player->tower_panel_id();
-        panel_id |= (m_id & 0xF);
-        convert << panel_id;
-        tower_name.append(convert.str());
-        tower_name.append("_holding");
-        tower_name.append(".png");
-        c->draw(expression, m_x+50, m_y+90);
-        c->draw(ijengine::resources::get_texture(tower_name).get(), m_x+15, m_y-10);
-        if (m_mouseover) {
-            int last_bit_button = (m_id & 0xF);
-            int last_bit_panel = m_player->tower_panel_id() & 0xF;
-            last_bit_panel = last_bit_panel << 4;
-            int desired_tower = last_bit_panel | last_bit_button;
-            LuaScript towers_list("lua-src/Tower.lua");
-            std::string affix = "tower_";
-            ostringstream convert2;
-            convert2 << desired_tower;
-            affix.append(convert2.str());
+SoMTD::Button::draw_self_after(ijengine::Canvas *c, unsigned, unsigned) {
+  // TODO: rewrite this
+  if (m_id >= 0x2000 && m_id < 0x2100 && m_player->state == SoMTD::Player::PlayerState::OPENED_TOWER_PANEL) {
+    // "it is a tower.."
+    auto font = ijengine::resources::get_font("Inconsolata-Regular.ttf", 20);
+    c->set_font(font);
 
-            c->draw(ijengine::resources::get_texture("towers/containertorre.png").get(), m_x - 70, m_y-180);
-            c->draw(towers_list.get<std::string>((affix) + ".description").c_str(), m_x-50, m_y-120);
-        }
+    std::string tower_name = "towers/tower_";
+    std::ostringstream convert;
+    std::string expression;
+    expression = "";
+    convert << (*m_infos)[0];
+    expression.append(convert.str());
+    convert.clear();
+    convert.str("");
+    int panel_id = m_player->tower_panel_id();
+    if (panel_id != 0)
+      panel_id = 8 << m_player->tower_panel_id();
+    panel_id |= (m_id & 0xF);
+
+    if (m_player->tower_panel_id() == 0) {
+      convert << m_id - 8192;
+    } else {
+      convert << pow(16, m_player->tower_panel_id()) - 8192 + m_id;
     }
+
+    tower_name.append(convert.str());
+    tower_name.append("_holding");
+    tower_name.append(".png");
+    c->draw(ijengine::resources::get_texture(tower_name).get(), m_x+15, m_y-10);
+
+    c->draw(expression, m_x+50, m_y+90);
+    if (m_mouseover) {
+      int last_bit_button = (m_id & 0xF);
+      int last_bit_panel = m_player->tower_panel_id() & 0xF;
+      last_bit_panel = last_bit_panel << 4;
+      int desired_tower = last_bit_panel | last_bit_button;
+      LuaScript towers_list("lua-src/Tower.lua");
+      std::string affix = "tower_";
+      ostringstream convert2;
+      convert2 << desired_tower;
+      affix.append(convert2.str());
+
+      c->draw(ijengine::resources::get_texture("towers/containertorre.png").get(), m_x - 70, m_y-180);
+      c->draw(towers_list.get<std::string>((affix) + ".description").c_str(), m_x-50, m_y-120);
+    }
+  }
 }

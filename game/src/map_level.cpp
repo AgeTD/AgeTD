@@ -30,6 +30,8 @@
 #include "cyclop.hpp"
 #include "centaur.hpp"
 #include "harpy.hpp"
+#include "zeus_tower.hpp"
+#include "hades_tower.hpp"
 
 SoMTD::MapLevel::MapLevel(const string& next_level, const string& current_level, const string& audio_file_path) :
     m_next(next_level),
@@ -184,7 +186,6 @@ SoMTD::MapLevel::draw_self(ijengine::Canvas *canvas, unsigned, unsigned)
 bool
 SoMTD::MapLevel::on_event(const ijengine::GameEvent& event)
 {
-
     if (event.id() == SoMTD::CLICK) {
         if (m_player->state == SoMTD::Player::PlayerState::HOLDING_BUILD) {
             double x_pos = event.get_property<double>("x");
@@ -376,7 +377,6 @@ SoMTD::MapLevel::draw_self_after(ijengine::Canvas *c, unsigned a1, unsigned a2)
          }
 
    }
-
 }
 
 void
@@ -469,27 +469,37 @@ SoMTD::MapLevel::current_wave()
 void
 SoMTD::MapLevel::build_tower(unsigned tower_id, int x, int y)
 {
-    LuaScript towers_list("lua-src/Tower.lua");
-    std::string affix = "tower_";
+  ijengine::audio::play_sound_effect("res/sound_efects/success.ogg");
+  SoMTD::Tower *tower;
+  switch (tower_id) {
+    case 0x0:
+    case 0x1:
+    case 0x2:
+    case 0x3:
+      tower = new ZeusTower(x, y, tower_id+1, m_player);
+      break;
 
-    ostringstream convert;
-    convert << tower_id;
-    affix.append(convert.str());
+    case 0x10:
+    case 0x11:
+    case 0x12:
+    case 0x13:
+      // TODO: SoMTD::Tower *tower = new PoseidonTower(x, y, tower_id+1, m_player);
+      break;
 
-    std::string tower_path = towers_list.get<std::string>((affix+".file_path").c_str());
-    std::string selected_tower_path = towers_list.get<std::string>((affix+".selected_file_path").c_str());
-    int tower_state_style = towers_list.get<int>((affix+".state_style").c_str());
-    int total_states = towers_list.get<int>((affix+".total_states").c_str());
-    int frame_per_state = towers_list.get<int>((affix+".frame_per_state").c_str());
-    float tower_attack_speed = towers_list.get<float>((affix + ".attack_speed").c_str());
-    int tower_damage = towers_list.get<int>((affix + ".damage").c_str());
-    int towerid = towers_list.get<int>((affix + ".id").c_str());
+    case 0x100:
+    case 0x101:
+    case 0x102:
+    case 0x103:
+      tower = new HadesTower(x, y, tower_id+1-0x100, m_player);
+      break;
 
-    ijengine::audio::play_sound_effect("res/sound_efects/success.ogg");
-    SoMTD::Tower *m_tower = new SoMTD::Tower(tower_path, towerid, x, y, selected_tower_path, m_player, (Animation::StateStyle)tower_state_style, frame_per_state, total_states, tower_attack_speed, tower_damage);
-    m_tower->set_priority(50000+(5*x*y));
-    add_child(m_tower);
-    m_towers->push_back(m_tower);
+    default:
+      break;
+  }
+
+  tower->set_priority(50000+(5*x*y));
+  add_child(tower);
+  m_towers->push_back(tower);
 }
 
 void

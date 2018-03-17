@@ -1,12 +1,14 @@
 #include "player.h"
 #include <ijengine/engine.h>
 
+#include <iostream>
+
 SoMTD::Player::Player() :
     m_y(0),
     m_x(0)
 {
     state = 0x0000;
-    m_gold = 600;
+    m_gold = 60600;
     m_units_events = new std::list<int>();
     m_event_args = new std::list<int>();
     m_buy_tower_panel_opened = false;
