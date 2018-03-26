@@ -1,223 +1,238 @@
-#include <iostream>
+// Copyright (C) 2016 Dylan Guedes
+//
+// This file is part of SoMTD.
+//
+// SoMTD is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// SoMTD is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with SoMTD. If not, see <http://www.gnu.org/licenses/>.
+
 #include <ijengine/canvas.h>
 #include <ijengine/engine.h>
 #include <ijengine/texture.h>
 #include <ijengine/rectangle.h>
+
 #include <cmath>
+#include <iostream>
 
-#include "game.h"
-#include "tower.h"
-#include "animation.hpp"
+#include "./game.h"
+#include "./tower.h"
+#include "./animation.hpp"
 
-SoMTD::Tower::Tower(std::string texture_name, unsigned id, int _x, int _y, std::string image_selected, Player *p,
-        Animation::StateStyle statestyle, int frame_per_state, int total_states, float newattackspeed,
-        int newdamage) :
+namespace SoMTD {
+Tower::Tower(std::string texture_name,
+    unsigned id,
+    int _x,
+    int _y,
+    std::string image_selected,
+    Player *p,
+    Animation::StateStyle statestyle,
+    int frame_per_state,
+    int total_states,
+    float newattackspeed,
+    int newdamage) :
     m_image_path(texture_name),
     m_id(id),
     m_start(-1),
     m_priority(0),
     m_imageselected_path(image_selected),
-    m_player(p)
-{
-    m_attack_speed = newattackspeed;
-    m_damage = newdamage;
-    m_level = 1;
-    m_range = 85.0;
-    m_texture = ijengine::resources::get_texture(texture_name);
-    m_animation = new Animation(_x, _y, texture_name, statestyle, frame_per_state, total_states);
-    m_x = _x;
-    m_y = _y;
-    ijengine::event::register_listener(this);
-    mytimer = 0;
-    m_cooldown = 0;
-    m_actual_state = IDLE;
-    m_projectiles = new std::list<Projectile*>();
+  m_player(p) {
+  m_attack_speed = newattackspeed;
+  m_damage = newdamage;
+  m_level = 1;
+  m_range = 85.0;
+  m_texture = ijengine::resources::get_texture(texture_name);
+  m_animation = new Animation(
+      _x, _y, texture_name, statestyle, frame_per_state, total_states);
+  m_x = _x;
+  m_y = _y;
+  ijengine::event::register_listener(this);
+  mytimer = 0;
+  m_cooldown = 0;
+  m_actual_state = IDLE;
+  m_projectiles = new std::list<Projectile*>();
 }
 
-SoMTD::Tower::~Tower()
-{
-    delete m_projectiles;
-    delete m_animation;
-    ijengine::event::unregister_listener(this);
+Tower::~Tower() {
+  delete m_projectiles;
+  delete m_animation;
+  ijengine::event::unregister_listener(this);
 }
 
 bool
-SoMTD::Tower::on_event(const ijengine::GameEvent& event)
-{
-    if (event.id() == SoMTD::UPGRADE_TOWER) {
-        if (m_selected && m_player->gold() > 250){
-            m_player->discount_gold(250);
-            level_up();
-        }
+Tower::on_event(const ijengine::GameEvent& event) {
+  if (event.id() == UPGRADE_TOWER) {
+    if (m_selected && m_player->gold() > 250) {
+      m_player->discount_gold(250);
+      level_up();
     }
+  }
 
-    if (event.id() == SoMTD::MOUSEOVER) {
-        double x_pos = event.get_property<double>("x");
-        double y_pos = event.get_property<double>("y");
-        std::pair<int, int> click_as_tile = SoMTD::tools::isometric_to_grid(x_pos, y_pos, 100, 81, 1024/2, 11);
-        if (click_as_tile.first == x() && click_as_tile.second == y()) {
-            m_mouseover = true;
-        } else {
-            m_mouseover = false;
-        }
+  if (event.id() == SoMTD::MOUSEOVER) {
+    double x_pos = event.get_property<double>("x");
+    double y_pos = event.get_property<double>("y");
+    std::pair<int, int> click_as_tile = SoMTD::tools::isometric_to_grid(
+        x_pos, y_pos, 100, 81, 1024/2, 11);
+    if (click_as_tile.first == x() && click_as_tile.second == y()) {
+      m_mouseover = true;
+    } else {
+      m_mouseover = false;
     }
+  }
 
-    if (event.id() == SoMTD::CLICK) {
-        double x_pos = event.get_property<double>("x");
-        double y_pos = event.get_property<double>("y");
-        std::pair<int, int> click_as_tile = SoMTD::tools::isometric_to_grid(x_pos, y_pos, 100, 81, 1024/2, 11);
-        if (click_as_tile.first == x() && click_as_tile.second == y()) {
-            m_selected = true;
-            m_animation->update_texture(m_imageselected_path);
-            m_player->state = SoMTD::Player::PlayerState::SELECTED_TOWER;
-            m_player->selected_object = this;
-        } else {
-            m_selected = false;
-            m_animation->update_texture(m_image_path);
-        }
+  if (event.id() == SoMTD::CLICK) {
+    double x_pos = event.get_property<double>("x");
+    double y_pos = event.get_property<double>("y");
+    std::pair<int, int> click_as_tile = SoMTD::tools::isometric_to_grid(
+        x_pos, y_pos, 100, 81, 1024/2, 11);
+    if (click_as_tile.first == x() && click_as_tile.second == y()) {
+      m_selected = true;
+      m_animation->update_texture(m_imageselected_path);
+      m_player->state = SoMTD::Player::PlayerState::SELECTED_TOWER;
+      m_player->selected_object = this;
+    } else {
+      m_selected = false;
+      m_animation->update_texture(m_image_path);
     }
+  }
 
-    return false;
+  return false;
 }
 
 void
-SoMTD::Tower::draw_self(ijengine::Canvas *canvas, unsigned a1, unsigned a2)
-{
-    m_animation->draw(canvas, a1, a2);
+Tower::draw_self(ijengine::Canvas *canvas, unsigned a1, unsigned a2) {
+  m_animation->draw(canvas, a1, a2);
 
-    for (auto it=m_projectiles->begin(); it != m_projectiles->end(); ++it) {
-        (*it)->draw_self(canvas, a1, a2);
-    }
+  for (auto it=m_projectiles->begin(); it != m_projectiles->end(); ++it) {
+    (*it)->draw_self(canvas, a1, a2);
+  }
 
-    if (m_mouseover) {
-        std::pair<int, int> pos = m_animation->screen_position();
-        int half_h = m_animation->height()/2;
-        for (double theta=0.0; theta < 360; ++theta) {
-            double myx = ( (m_range * cos(theta)) + pos.first + m_animation->width()-15);
-            double myy = ( m_range * sin(theta) + pos.second + half_h/2);
-            ijengine::Point myp(myx, myy);
-            canvas->draw(myp);
-        }
+  if (m_mouseover) {
+    Point pos = m_animation->screen_position();
+    int half_h = m_animation->height()/2;
+    for (double theta=0.0; theta < 360; ++theta) {
+      double myx = ((m_range * cos(theta)) + pos.x+m_animation->width()-15);
+      double myy = (m_range * sin(theta) + pos.y+ half_h/2);
+      ijengine::Point myp(myx, myy);
+      canvas->draw(myp);
     }
+  }
 }
 
 void
-SoMTD::Tower::update_self(unsigned now, unsigned last)
-{
-    if (m_next_frame_time == 0) {
-        m_next_frame_time = now+(1000/m_animation->frame_per_state());
-    }
+Tower::update_self(unsigned now, unsigned last) {
+  if (m_next_frame_time == 0) {
+    m_next_frame_time = now+(1000/m_animation->frame_per_state());
+  }
 
-    if (now > m_next_frame_time) {
-        m_animation->next_frame();
-        m_next_frame_time += 1000/m_animation->frame_per_state();
-    }
+  if (now > m_next_frame_time) {
+    m_animation->next_frame();
+    m_next_frame_time += 1000/m_animation->frame_per_state();
+  }
 
-    for (auto it=m_projectiles->begin(); it != m_projectiles->end(); ++it) {
-        if ((*it)->done())
-            it = m_projectiles->erase(it);
-        else
-            (*it)->update_self(now, last);
-    }
+  for (auto it=m_projectiles->begin(); it != m_projectiles->end(); ++it) {
+    if ((*it)->done())
+      it = m_projectiles->erase(it);
+    else
+      (*it)->update_self(now, last);
+  }
 
-    switch (actual_state()) {
-        case IDLE:
-            handle_idle_state(now, last);
-        break;
+  switch (actual_state()) {
+    case IDLE:
+      handle_idle_state(now, last);
+      break;
 
-        case ATTACKING:
-            handle_attacking_state(now, last);
-        break;
+    case ATTACKING:
+      handle_attacking_state(now, last);
+      break;
 
-        default:
-        break;
-    }
+    default:
+      break;
+  }
 }
 
 void
-SoMTD::Tower::level_up()
-{
-    m_level+=1;
-    m_damage *=1.15;
-    m_range+=30.0;
+Tower::level_up() {
+  m_level+=1;
+  m_damage *=1.15;
+  m_range+=30.0;
 }
 
 int
-SoMTD::Tower::level() const
-{
-    return m_level;
+Tower::level() const {
+  return m_level;
 }
 
 int
-SoMTD::Tower::damage() const
-{
-    return m_damage;
+Tower::damage() const {
+  return m_damage;
 }
 
 double
-SoMTD::Tower::range() const
-{
-    return m_range;
+Tower::range() const {
+  return m_range;
 }
 
 void
-SoMTD::Tower::draw_self_after(ijengine::Canvas* c, unsigned a1, unsigned a2)
-{
-    for (auto it=m_projectiles->begin(); it != m_projectiles->end(); ++it) {
-        (*it)->draw_self_after(c, a1, a2);
-    }
+Tower::draw_self_after(ijengine::Canvas* c, unsigned a1, unsigned a2) {
+  for (auto it=m_projectiles->begin(); it != m_projectiles->end(); ++it) {
+    (*it)->draw_self_after(c, a1, a2);
+  }
 
-    if (m_selected) {
-      std::pair<int, int> pos = m_animation->screen_position();
-      auto font = ijengine::resources::get_font("Forelle.ttf", 40);
-      c->set_font(font);
-      c->draw("Press U", pos.first, pos.second-80);
-    }
+  if (m_selected) {
+    Point pos = m_animation->screen_position();
+    auto font = ijengine::resources::get_font("Forelle.ttf", 40);
+    c->set_font(font);
+    c->draw("Press U", pos.x, pos.y-80);
+  }
 }
 
-SoMTD::Animation*
-SoMTD::Tower::animation() const
-{
-    return m_animation;
+Animation*
+Tower::animation() const {
+  return m_animation;
 }
 
-SoMTD::Tower::State
-SoMTD::Tower::actual_state() const
-{
-    return m_actual_state;
+Tower::State
+Tower::actual_state() const {
+  return m_actual_state;
 }
 
 void
-SoMTD::Tower::handle_idle_state(unsigned, unsigned)
-{
-}
+Tower::handle_idle_state(unsigned, unsigned) { }
 
 void
-SoMTD::Tower::handle_attacking_state(unsigned now, unsigned last)
-{
-    if (now > m_cooldown) {
-        if (m_target) {
-            if (m_target->active()) {
-                double dx = animation()->screen_position().first - target()->animation()->screen_position().first;
-                double dy = animation()->screen_position().second - target()->animation()->screen_position().second;
-                double distance = sqrt(dx*dx + dy*dy);
-                if (distance < range()+target()->animation()->width()/2) {
-                    attack(m_target, now, last);
+Tower::handle_attacking_state(unsigned now, unsigned last) {
+  if (now > m_cooldown) {
+    if (m_target) {
+      if (m_target->active()) {
+        double dx = x() - target()->animation()->screen_position().x;
+        double dy = y() - target()->animation()->screen_position().y;
+        double distance = sqrt(dx*dx + dy*dy);
+        if (distance < range()+target()->animation()->width()/2) {
+          attack(m_target, now, last);
 
-                    if (m_id == 0x001)
-                        m_player->increase_gold(damage());
-                } else {
-                    m_actual_state = SoMTD::Tower::IDLE;
-                    m_target = nullptr;
-                }
-            } else {
-                m_actual_state = SoMTD::Tower::IDLE;
-                m_target = nullptr;
-            }
+          if (m_id == 0x001)
+            m_player->increase_gold(damage());
         } else {
-            m_actual_state = SoMTD::Tower::IDLE;
+          m_actual_state = SoMTD::Tower::IDLE;
+          m_target = nullptr;
         }
+      } else {
+        m_actual_state = SoMTD::Tower::IDLE;
+        m_target = nullptr;
+      }
+    } else {
+      m_actual_state = SoMTD::Tower::IDLE;
     }
+  }
 }
 
 void
@@ -232,7 +247,7 @@ SoMTD::Tower::attack(SoMTD::MovableUnit* newtarget, unsigned now, unsigned last)
             m_cooldown = now+attack_speed()*1000;
             m_target = newtarget;
             m_actual_state = State::ATTACKING;
-            Projectile* p = new Projectile(target(), std::make_pair(target()->animation()->screen_position().first, target()->animation()->screen_position().second), "projectiles/projetil_poseidon.png", std::make_pair(animation()->screen_position().first, animation()->screen_position().second), 1, 1, damage());
+            Projectile* p = new Projectile(target(), std::make_pair(target()->animation()->screen_position().x, target()->animation()->screen_position().y), "projectiles/projetil_poseidon.png", std::make_pair(animation()->screen_position().x, animation()->screen_position().y), 1, 1, damage());
             m_projectiles->push_back(p);
             newtarget->suffer_slow(400, 3000, now, last);
           }
@@ -243,7 +258,7 @@ SoMTD::Tower::attack(SoMTD::MovableUnit* newtarget, unsigned now, unsigned last)
             m_cooldown = now+attack_speed()*1000;
             m_target = newtarget;
             m_actual_state = State::ATTACKING;
-            Projectile* p = new Projectile(target(), std::make_pair(target()->animation()->screen_position().first, target()->animation()->screen_position().second), "projectiles/projetil_poseidon.png", std::make_pair(animation()->screen_position().first, animation()->screen_position().second), 1, 1, damage());
+            Projectile* p = new Projectile(target(), std::make_pair(target()->animation()->screen_position().x, target()->animation()->screen_position().y), "projectiles/projetil_poseidon.png", std::make_pair(animation()->screen_position().x, animation()->screen_position().y), 1, 1, damage());
             m_projectiles->push_back(p);
             newtarget->suffer_slow(400, 2000, now, last);
           }
@@ -298,7 +313,7 @@ SoMTD::Tower::attack(SoMTD::MovableUnit* newtarget, unsigned now, unsigned last)
             if (m_cooldown < now) {
                 m_cooldown = now+attack_speed()*1000;
                 m_target = newtarget;
-                Projectile* p = new Projectile(target(), std::make_pair(target()->animation()->screen_position().first, target()->animation()->screen_position().second), "projectiles/projetil_zeus2.png", std::make_pair(animation()->screen_position().first, animation()->screen_position().second), 1, 1, damage());
+                Projectile* p = new Projectile(target(), std::make_pair(target()->animation()->screen_position().x, target()->animation()->screen_position().y), "projectiles/projetil_zeus2.png", std::make_pair(animation()->screen_position().x, animation()->screen_position().y), 1, 1, damage());
                 m_projectiles->push_back(p);
                 m_actual_state = State::ATTACKING;
                 m_player->increase_gold(damage());
@@ -312,7 +327,7 @@ SoMTD::Tower::attack(SoMTD::MovableUnit* newtarget, unsigned now, unsigned last)
                m_cooldown = now+attack_speed()*1000;
                m_target = newtarget;
                m_actual_state = State::ATTACKING;
-               Projectile* p = new Projectile(target(), std::make_pair(target()->animation()->screen_position().first, target()->animation()->screen_position().second), "projectiles/projetil_caveira.png", std::make_pair(animation()->screen_position().first, animation()->screen_position().second), 1, 1, damage());
+               Projectile* p = new Projectile(target(), std::make_pair(target()->animation()->screen_position().x, target()->animation()->screen_position().y), "projectiles/projetil_caveira.png", std::make_pair(animation()->screen_position().x, animation()->screen_position().y), 1, 1, damage());
                m_projectiles->push_back(p);
            }
            break;
@@ -321,7 +336,7 @@ SoMTD::Tower::attack(SoMTD::MovableUnit* newtarget, unsigned now, unsigned last)
            if (m_cooldown < now) {
                m_cooldown = now+attack_speed()*1000;
                m_target = newtarget;
-               Projectile* p = new Projectile(target(), std::make_pair(target()->animation()->screen_position().first, target()->animation()->screen_position().second), "projectiles/projetil_caveira.png", std::make_pair(animation()->screen_position().first, animation()->screen_position().second), 1, 1, damage());
+               Projectile* p = new Projectile(target(), std::make_pair(target()->animation()->screen_position().x, target()->animation()->screen_position().y), "projectiles/projetil_caveira.png", std::make_pair(animation()->screen_position().x, animation()->screen_position().y), 1, 1, damage());
                m_projectiles->push_back(p);
                newtarget->suffer_poison(damage(), 8000, now, last);
                m_actual_state = State::ATTACKING;
@@ -334,7 +349,13 @@ SoMTD::Tower::attack(SoMTD::MovableUnit* newtarget, unsigned now, unsigned last)
                 m_cooldown = now+attack_speed()*1000;
                 m_target = newtarget;
                 m_actual_state = State::ATTACKING;
-                Projectile* p = new Projectile(target(), std::make_pair(target()->animation()->screen_position().first, target()->animation()->screen_position().second), "projectiles/projetil_caveira.png", std::make_pair(animation()->screen_position().first, animation()->screen_position().second), 1, 1, damage());
+                Projectile* p = new Projectile(
+                    target(),
+                    std::make_pair(target()->animation()->screen_position().x,
+                      target()->animation()->screen_position().y),
+                    "projectiles/projetil_caveira.png",
+                    std::make_pair(animation()->screen_position().x,
+                      animation()->screen_position().y), 1, 1, damage());
                 m_projectiles->push_back(p);
                 newtarget->suffer_bleed(damage(), 10000, now, last);
             }
@@ -343,45 +364,46 @@ SoMTD::Tower::attack(SoMTD::MovableUnit* newtarget, unsigned now, unsigned last)
         default:
             m_cooldown = now+attack_speed()*1000;
             m_target = newtarget;
-            Projectile* p = new Projectile(target(), std::make_pair(target()->animation()->screen_position().first, target()->animation()->screen_position().second), "projectiles/projetil_poseidon.png", std::make_pair(animation()->screen_position().first, animation()->screen_position().second), 1, 1, damage());
+            Projectile* p = new Projectile(
+                target(),
+                std::make_pair(target()->animation()->screen_position().x,
+                  target()->animation()->screen_position().y),
+                "projectiles/projetil_poseidon.png",
+                std::make_pair(animation()->screen_position().x,
+                  animation()->screen_position().y), 1, 1, damage());
             m_projectiles->push_back(p);
             m_actual_state = State::ATTACKING;
             break;
     }
 }
 
-SoMTD::MovableUnit*
-SoMTD::Tower::target() const
-{
-    return m_target;
+MovableUnit*
+Tower::target() const {
+  return m_target;
 }
 
 double
-SoMTD::Tower::attack_speed() const
-{
-    return m_attack_speed;
+Tower::attack_speed() const {
+  return m_attack_speed;
 }
 
 unsigned
-SoMTD::Tower::id() const
-{
-    return m_id;
+Tower::id() const {
+  return m_id;
 }
 
-SoMTD::Player*
-SoMTD::Tower::player() const
-{
-    return m_player;
+Player*
+Tower::player() const {
+  return m_player;
 }
 
 int
-SoMTD::Tower::x() const
-{
+Tower::x() const {
   return m_x;
 }
 
 int
-SoMTD::Tower::y() const
-{
+Tower::y() const {
   return m_y;
 }
+}  // namespace SoMTD

@@ -33,8 +33,8 @@ namespace SoMTD {
 using std::tie;
 
 MovableUnit::MovableUnit(
-    std::pair<int, int> s_pos,
-    std::pair<int, int> e_pos,
+    Tile s_pos,
+    Tile e_pos,
     std::string t_path,
     std::vector< std::pair<int, int> > best_path,
     Player* myp,
@@ -48,19 +48,20 @@ MovableUnit::MovableUnit(
     std::string newslowed_path,
     std::string newbleed_path,
     std::string poison_path) :
-  m_enemy(true),
-  end_position(e_pos),
-  start_position(s_pos),
-  m_texture(ijengine::resources::get_texture(t_path)),
-  m_active(false),
-  m_current_instruction(0),
-  m_player(myp),
-  m_state_style(entity_state_style),
-  m_frame_per_state(frame_per_state),
-  m_total_states(total_states),
-  m_slowed_path(newslowed_path),
-  m_bleeding_path(newbleed_path),
-  m_poisoned_path(poison_path) {
+      m_enemy(true),
+      m_end_position(e_pos),
+      m_start_position(s_pos),
+      m_texture(ijengine::resources::get_texture(t_path)),
+      m_active(false),
+      m_current_instruction(0),
+      m_player(myp),
+      m_state_style(entity_state_style),
+      m_frame_per_state(frame_per_state),
+      m_total_states(total_states),
+      m_slowed_path(newslowed_path),
+      m_bleeding_path(newbleed_path),
+      m_poisoned_path(poison_path) {
+
     m_status_list = new std::list<MovableUnit::Status>();
     m_time_per_tile = unit_time;
     m_initial_hp = unit_hp;
@@ -71,16 +72,17 @@ MovableUnit::MovableUnit(
     m_movement_speed = std::make_pair(0.0, 0.0);
     m_labyrinth_path = best_path;
     m_animation = new Animation(
-        s_pos.first,
-        s_pos.second,
+        s_pos.x,
+        s_pos.y,
         t_path,
         entity_state_style,
         m_frame_per_state,
         total_states);
     std::pair<int, int> p = SoMTD::tools::grid_to_isometric(
-        s_pos.first, s_pos.second, 100, 81, 1024/2, 11);
-    start_position = s_pos;
-    desired_place = start_position;
+        s_pos.x, s_pos.y, 100, 81, 1024/2, 11);
+    m_start_position = s_pos;
+    desired_place = std::pair<int, int>(
+        m_start_position.x, m_start_position.y);
     m_x = p.first;
     m_y = p.second;
     ijengine::event::register_listener(this);
@@ -126,7 +128,7 @@ MovableUnit::update_self(unsigned now, unsigned) {
                 status = status_list()->erase(status);
                 m_animation->update_texture(texture_name);
               } else {
-                status_coeff = static_cast<double>(m_slow_coeff/1000.0);
+                status_coeff = (m_slow_coeff/1000.0);
               }
               break;
 
@@ -240,7 +242,7 @@ SoMTD::MovableUnit::spawn() {
   m_moving = false;
   m_current_instruction = 0;
   tie(m_x, m_y) = SoMTD::tools::grid_to_isometric(
-      start_position.first, start_position.second, 100, 81, 1024/2, 11);
+      m_start_position.x, m_start_position.y, 100, 81, 1024/2, 11);
 }
 
 bool
@@ -328,6 +330,21 @@ MovableUnit::suffer_poison(
   m_poison_penalization = time_penalization + now;
   m_animation->update_texture(m_poisoned_path);
   m_last_bleeding_tick = now;
+}
+
+Tile
+MovableUnit::start_position() const {
+  return m_start_position;
+}
+
+Player*
+MovableUnit::player() const {
+  return m_player;
+}
+
+Tile
+MovableUnit::end_position() const {
+  return m_end_position;
 }
 
 std::list<MovableUnit::Status>*
