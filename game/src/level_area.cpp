@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "game.h"
+#include "game.hpp"
 
 #include <ijengine/canvas.h>
 #include <ijengine/engine.h>

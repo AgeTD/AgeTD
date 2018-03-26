@@ -28,7 +28,7 @@
 #include <utility>
 #include <memory>
 
-#include "./game.h"
+#include "./game.hpp"
 
 namespace SoMTD {
 class Animation {

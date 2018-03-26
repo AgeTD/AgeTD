@@ -18,7 +18,7 @@
 #include <iostream>
 
 #include "animation.hpp"
-#include "./game.h"
+#include "./game.hpp"
 
 /*
  * Class that handles sprite animation logic

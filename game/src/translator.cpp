@@ -6,7 +6,7 @@
 #include <ijengine/keyboard_event.h>
 #include <ijengine/system_event.h>
 
-#include "game.h"
+#include "game.hpp"
 
 bool
 SoMTD::Translator::translate(ijengine::GameEvent& to, const ijengine::MouseEvent& from)
