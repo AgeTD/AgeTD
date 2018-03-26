@@ -43,6 +43,4 @@ SoMTD::LevelChangerButton::draw_self(ijengine::Canvas *c, unsigned, unsigned)
 }
 
 void
-SoMTD::LevelChangerButton::draw_self_after(ijengine::Canvas *c, unsigned, unsigned)
-{
-}
+SoMTD::LevelChangerButton::draw_self_after(ijengine::Canvas *, unsigned, unsigned) { }

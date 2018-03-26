@@ -23,7 +23,7 @@ using ii = std::pair<int, int>;
 using vii = std::vector<ii>;
 
 Medusa::Medusa(
-    ii _origin, ii _destination, vii _path, Player *_player) : MovableUnit(
+    Tile _origin, Tile _destination, vii _path, Player *_player) : MovableUnit(
     _origin,
     _destination,
     _texture_path(),
@@ -99,9 +99,9 @@ Medusa::_poison_texture_path() const {
 Medusa*
 Medusa::_clone() {
   return new Medusa(
-      this->start_position,
-      this->end_position,
+      start_position(),
+      end_position(),
       this->m_labyrinth_path,
-      this->m_player);
+      player());
 }
 }  // namespace SoMTD

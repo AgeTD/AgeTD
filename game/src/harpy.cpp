@@ -17,13 +17,14 @@
 
 #include "./harpy.hpp"
 #include "./movable_unit.h"
+#include "./game.h"
 
 namespace SoMTD {
 using ii = std::pair<int, int>;
 using vii = std::vector<ii>;
 
 Harpy::Harpy(
-    ii _origin, ii _destination, vii _path, Player *_player) : MovableUnit(
+    Tile _origin, Tile _destination, vii _path, Player *_player) : MovableUnit(
     _origin,
     _destination,
     _texture_path(),
@@ -99,9 +100,9 @@ Harpy::_poison_texture_path() const {
 Harpy*
 Harpy::_clone() {
   return new Harpy(
-      this->start_position,
-      this->end_position,
-      this->m_labyrinth_path,
-      this->m_player);
+      start_position(),
+      end_position(),
+      m_labyrinth_path,
+      player());
 }
 }  // namespace SoMTD

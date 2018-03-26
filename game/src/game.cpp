@@ -28,6 +28,21 @@ namespace SoMTD {
         return m_game.run(level_id);
     }
 
+    namespace tools {
+      Point
+      grid_to_isometric(int _x, int _y) {
+        const double tile_width = 100.;
+        const double tile_height = 81.;
+        const double x0 = 1024./2.;
+        const double offset = 11.0;
+        double y0 = tile_height/2.0;
+        double xs = (_x - _y) * (tile_width/2) + x0;
+        double ys = (_x + _y) * (-offset +tile_height/2.0) + y0;
+
+        return Point { xs, ys };
+      }
+    }
+
     std::pair<int, int>
     tools::grid_to_isometric(int x_grid, int y_grid, int tile_width, int tile_height, int x0, int offset)
     {

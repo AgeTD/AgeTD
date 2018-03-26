@@ -51,18 +51,18 @@ SoMTD::MainMenu::done() const
 }
 
 bool
-SoMTD::MainMenu::on_event(const ijengine::GameEvent& event)
+SoMTD::MainMenu::on_event(const ijengine::GameEvent&)
 {
         return false;
 }
 
 void
-SoMTD::MainMenu::draw_self_after(ijengine::Canvas *c, unsigned a1, unsigned a2)
+SoMTD::MainMenu::draw_self_after(ijengine::Canvas *, unsigned , unsigned )
 {
 }
 
 void
-SoMTD::MainMenu::draw_self(ijengine::Canvas *c, unsigned a1, unsigned a2)
+SoMTD::MainMenu::draw_self(ijengine::Canvas *c, unsigned , unsigned )
 {
         c->draw(m_texture.get(), 0, 0);
 }

@@ -114,7 +114,6 @@ SoMTD::Button::on_event(const ijengine::GameEvent& event)
             }
 
             int last_bit_button;
-            int last_bit_panel;
             int desired_tower;
             bool result1;
             std::bitset<12> upgrade_state;
@@ -151,7 +150,6 @@ SoMTD::Button::on_event(const ijengine::GameEvent& event)
                         result1 = (*m_infos)[1] & m_player->upgrade_state().to_ulong();
                         if ((m_player->gold() >= (*m_infos)[0]) and result1) {
                             m_player->state = Player::PlayerState::HOLDING_BUILD;
-                            last_bit_panel = m_player->tower_panel_id() & 0xF;
                             desired_tower = m_id - 0x2000 + pow(16, m_player->tower_panel_id());
                             if (m_player->tower_panel_id() == 0) { 
                               desired_tower -= 1;

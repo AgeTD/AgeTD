@@ -17,13 +17,14 @@
 
 #include "./centaur.hpp"
 #include "./movable_unit.h"
+#include "./game.h"
 
 namespace SoMTD {
 using ii = std::pair<int, int>;
 using vii = std::vector<ii>;
 
 Centaur::Centaur(
-    ii _origin, ii _destination, vii _path, Player *_player) : MovableUnit(
+    Tile _origin, Tile _destination, vii _path, Player *_player) : MovableUnit(
     _origin,
     _destination,
     _texture_path(),
@@ -99,9 +100,9 @@ Centaur::_poison_texture_path() const {
 Centaur*
 Centaur::_clone() {
   return new Centaur(
-      this->start_position,
-      this->end_position,
+      start_position(),
+      end_position(),
       this->m_labyrinth_path,
-      this->m_player);
+      player());
 }
 }  // namespace SoMTD

@@ -23,6 +23,7 @@
 #include <string>
 
 #include "./movable_unit.h"
+#include "./game.h"
 
 namespace SoMTD {
   using ii = std::pair<int, int>;
@@ -31,7 +32,7 @@ namespace SoMTD {
 class Centaur : public MovableUnit {
  public:
   Centaur(
-      ii _origin, ii _destination, vii _path, Player* _player);
+      Tile _origin, Tile _destination, vii _path, Player* _player);
 
   Animation::StateStyle _state_style() const;
   int _hp_discount_unit_win() const;
