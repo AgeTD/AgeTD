@@ -24,22 +24,23 @@
  * Class that handles sprite animation logic
  */
 
-SoMTD::Animation::Animation(
+namespace SoMTD {
+Animation::Animation(
     int _x,
     int _y,
     std::string _texture_path,
     StateStyle _state_style,
     int _frame_per_state,
-    int _total_states) {
-  m_screen_position = SoMTD::tools::grid_to_isometric(
-      _x, _y, 100, 81, 1024/2, 11);
-  m_file_path = _texture_path;
-  m_texture = ijengine::resources::get_texture(_texture_path);
-  m_frame_per_state = _frame_per_state;
-  m_state_style = _state_style;
-  m_total_states = _total_states;
-  m_actual_state = DIRECTION_RIGHT;
-  m_actual_frame = 0;
+    int _total_states) :
+      m_coords(Tile { _x, _y }),
+      m_display(tools::grid_to_isometric(_x, _y)),
+      m_file_path(_texture_path),
+      m_frame_per_state(_frame_per_state),
+      m_actual_state(DIRECTION_RIGHT),
+      m_actual_frame(0),
+      m_total_states(_total_states),
+      m_state_style(_state_style),
+      m_texture(ijengine::resources::get_texture(_texture_path)) {
 
   if (_state_style == STATE_PER_COLUMN) {
     m_width = m_texture->w()/m_total_states;
@@ -54,36 +55,40 @@ SoMTD::Animation::Animation(
   }
 }
 
-SoMTD::Animation::~Animation() { }
+Animation::~Animation() { }
 
 void
-SoMTD::Animation::update_screen_position(std::pair<int, int> new_pos) {
-  m_screen_position = new_pos;
+Animation::update_tile(int _x, int _y) {
+  m_coords = Tile { _x, _y };
+}
+
+void
+Animation::update_display(double _x, double _y) {
+  m_display = Point { _x, _y };
 }
 
 int
-SoMTD::Animation::actual_frame() const {
+Animation::actual_frame() const {
   return m_actual_frame;
 }
 
 void
-SoMTD::Animation::update_frame(int now) {
+Animation::update_frame(int now) {
   m_actual_frame = now;
 }
 
 void
-SoMTD::Animation::next_frame() {
+Animation::next_frame() {
   update_frame(actual_frame() % frame_per_state() + 1);
 }
 
 int
-SoMTD::Animation::actual_state() const
-{
+Animation::actual_state() const {
   return m_actual_state;
 }
 
 void
-SoMTD::Animation::draw(ijengine::Canvas *c, unsigned, unsigned) {
+Animation::draw(ijengine::Canvas *c, unsigned, unsigned) {
   ijengine::Rectangle rect(0, 0, m_width, m_height);
   if (m_state_style ==  STATE_PER_COLUMN) {
     // decrease one in actual_frame because the first index is 0
@@ -107,53 +112,70 @@ SoMTD::Animation::draw(ijengine::Canvas *c, unsigned, unsigned) {
       m_file_path == "projectiles/projetil_poseidon.png" ||
       m_file_path == "projectiles/projetil_caveira.png" ||
       m_file_path == "projectiles/projetil_zeus2.png") {
-    c->draw(m_texture.get(), m_screen_position.first, m_screen_position.second);
+    c->draw(m_texture.get(), screen_position().x, screen_position().y);
   } else {
     c->draw(
         m_texture.get(),
         rect,
-        m_screen_position.first+(100-m_width)/2,
-        m_screen_position.second+81/2-m_height);
+        screen_position().x+(100-m_width)/2,
+        screen_position().y+81/2-m_height);
   }
 }
 
-void
-SoMTD::Animation::draw_self_after(ijengine::Canvas*, unsigned, unsigned) { }
-
-std::pair<int, int>
-SoMTD::Animation::screen_position() const {
-  return m_screen_position;
+[[deprecated]]
+Point
+Animation::screen_position() const {
+  return m_display;
 }
 
 void
-SoMTD::Animation::update_texture(std::string new_path) {
+Animation::draw_self_after(ijengine::Canvas*, unsigned, unsigned) { }
+
+void
+Animation::update_texture(std::string new_path) {
   m_file_path = new_path;
   m_texture = ijengine::resources::get_texture(m_file_path);
 }
 
 std::shared_ptr<ijengine::Texture>
-SoMTD::Animation::texture() const {
+Animation::texture() const {
   return m_texture;
 }
 
 int
-SoMTD::Animation::width() const {
+Animation::width() const {
   return m_width;
 }
 
 int
-SoMTD::Animation::height() const {
+Animation::height() const {
   return m_height;
 }
 
 int
-SoMTD::Animation::frame_per_state() const {
+Animation::frame_per_state() const {
   return m_frame_per_state;
 }
 
 void
-SoMTD::Animation::update_direction(SoMTD::Animation::DirectionState ds) {
+Animation::update_direction(SoMTD::Animation::DirectionState ds) {
   if (m_total_states >= static_cast<int>(ds)) {
     m_actual_state = static_cast<int>(ds);
   }
+}
+
+Point
+Animation::display() const {
+  return m_display; 
+}
+
+Tile
+Animation::coords() const {
+  return m_coords;
+}
+
+void
+Animation::update_screen_position(std::pair<int, int> new_pos) {
+  m_display = Point { static_cast<double>(new_pos.first), static_cast<double>(new_pos.second) };
+}
 }

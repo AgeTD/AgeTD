@@ -31,6 +31,7 @@
 #include <vector>
 
 #include "./player.h"
+#include "./game.h"
 #include "./animation.hpp"
 
 namespace SoMTD {
@@ -48,8 +49,8 @@ class MovableUnit : public GameObject, public GameEventsListener {
   };
 
   MovableUnit(
-      std::pair<int, int> s_pos,
-      std::pair<int, int> e_pos,
+      Tile s_pos,
+      Tile e_pos,
       std::string texture_path,
       std::vector< std::pair<int, int> >,
       Player* playerz,
@@ -97,34 +98,40 @@ class MovableUnit : public GameObject, public GameEventsListener {
       unsigned last);
   std::list<MovableUnit::Status> *status_list() const;
   virtual std::string _texture_path() const = 0;
-  std::pair<int, int> end_position;
-  std::pair<int, int> start_position;
-  Player *m_player;
+  Tile start_position() const;
+  Tile end_position() const;
+  Player *player() const;
 
  protected:
   bool on_event(const ijengine::GameEvent& event);
 
  private:
+  bool m_enemy;
+  Tile m_end_position;
+  Tile m_start_position;
+  std::shared_ptr<ijengine::Texture> m_texture;
+  bool m_active;
+  unsigned int m_current_instruction;
+  Player *m_player;
+  Animation::StateStyle m_state_style;
+  int m_frame_per_state = 1;
+  int m_total_states = 1;
+  std::string m_slowed_path;
+  std::string m_bleeding_path;
+  std::string m_poisoned_path;
   unsigned m_next_frame = 0;
   void die();
   bool m_done = false;
-  bool m_enemy;
   std::pair<int, int> grid_position;
-  std::shared_ptr<ijengine::Texture> m_texture;
   std::pair<int, int> desired_place;
-  bool m_active;
   bool m_moving = false;
   double m_x;
   double m_y;
-  unsigned int m_current_instruction;
   std::pair<double, double> m_movement_speed;
   int m_initial_hp = 100;
   int m_actual_hp = 100;
   int m_hp_discount_unit_win;
   Animation *m_animation;
-  Animation::StateStyle m_state_style;
-  int m_frame_per_state = 1;
-  int m_total_states = 1;
   bool m_dead = false;
   int m_gold_award;
   int m_time_per_tile;
@@ -138,9 +145,6 @@ class MovableUnit : public GameObject, public GameEventsListener {
   int m_poison_penalization;
   unsigned m_last_bleeding_tick;
   unsigned m_last_poison_tick;
-  std::string m_slowed_path;
-  std::string m_bleeding_path;
-  std::string m_poisoned_path;
   double m_bleed_x;
   double m_bleed_y;
 };

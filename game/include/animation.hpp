@@ -28,6 +28,8 @@
 #include <utility>
 #include <memory>
 
+#include "./game.h"
+
 namespace SoMTD {
 class Animation {
  public:
@@ -55,8 +57,10 @@ class Animation {
   void update_texture(std::string new_path);
   void update_screen_position(std::pair<int, int> new_pos);
   void update_frame(int now);
+  void update_tile(int _x, int _y);
+  void update_display(double _x, double _y);
 
-  std::pair<int, int> screen_position() const;
+  Point screen_position() const;
   std::shared_ptr<ijengine::Texture> texture() const;
   int width() const;
   int actual_state() const;
@@ -64,20 +68,23 @@ class Animation {
   int actual_frame() const;
   int frame_per_state() const;
   void update_direction(SoMTD::Animation::DirectionState newstate);
+  Tile coords() const;
+  Point display() const;
 
  private:
-  std::pair<int, int> m_screen_position;
+  Tile m_coords;
+  Point m_display;
   std::string m_file_path;
-  int m_width;
-  int m_height;
   int m_frame_per_state;
   int m_actual_state;
   int m_actual_frame;
   int m_total_states;
   StateStyle m_state_style;
   std::shared_ptr<ijengine::Texture> m_texture;
-  ijengine::Rectangle *m_frame;
-  SoMTD::Animation::DirectionState m_actual_direction;
+  ijengine::Rectangle *m_frame; // TODO: needed?
+  SoMTD::Animation::DirectionState m_actual_direction; // TODO: needed?
+  int m_width;
+  int m_height;
 };
 }  // namespace SoMTD
 
