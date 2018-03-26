@@ -413,11 +413,13 @@ SoMTD::MapLevel::draw_selected_panel(ijengine::Canvas *c, unsigned, unsigned)
 void
 SoMTD::MapLevel::load_spawners()
 {
+  Tile ori { origin.first, origin.second };
+  Tile dest { destiny.first, destiny.second };
   std::vector<MovableUnit*> units = {
-    new Cyclop(origin, destiny, m_labyrinth->solution, m_player),
-    new Medusa(origin, destiny, m_labyrinth->solution, m_player),
-    new Harpy(origin, destiny, m_labyrinth->solution, m_player),
-    new Centaur(origin, destiny, m_labyrinth->solution, m_player)
+    new Cyclop(ori, dest, m_labyrinth->solution, m_player),
+    new Medusa(ori, dest, m_labyrinth->solution, m_player),
+    new Harpy(ori, dest, m_labyrinth->solution, m_player),
+    new Centaur(ori, dest, m_labyrinth->solution, m_player)
   };
 
   for (MovableUnit *unit : units) {
@@ -571,8 +573,8 @@ SoMTD::MapLevel::handle_unit_event(int event_id, unsigned now, unsigned last)
 
             for (auto unit=current_wave()->units()->begin(); unit != current_wave()->units()->end(); ++unit) {
                 if ((*unit)->active()) {
-                    dx = x_event - (*unit)->animation()->screen_position().first;
-                    dy = y_event - (*unit)->animation()->screen_position().second;
+                    dx = x_event - (*unit)->animation()->screen_position().x;
+                    dy = y_event - (*unit)->animation()->screen_position().y;
                     distance = sqrt(dx*dx + dy*dy);
                     if (distance < (slow_range +(*unit)->animation()->width()/2)) {
                         (*unit)->suffer(slow_damage);
@@ -595,8 +597,8 @@ SoMTD::MapLevel::check_towers_collisions(unsigned now, unsigned last)
         if ((*unit)->active()) {
             for (auto tower=m_towers->begin(); tower != m_towers->end(); ++tower) {
                 if ((*tower)->actual_state() == SoMTD::Tower::State::IDLE) {
-                    double dx = (*tower)->animation()->screen_position().first - (*unit)->animation()->screen_position().first;
-                    double dy = (*tower)->animation()->screen_position().second - (*unit)->animation()->screen_position().second;
+                    double dx = (*tower)->animation()->screen_position().x- (*unit)->animation()->screen_position().x;
+                    double dy = (*tower)->animation()->screen_position().y- (*unit)->animation()->screen_position().y;
                     double distance = sqrt(dx*dx + dy*dy);
                     if (distance < ((*tower)->range()+(*unit)->animation()->width()/2)) {
                         (*tower)->attack(*unit, now, last);

@@ -9,6 +9,16 @@
 #include "translator.h"
 
 namespace SoMTD {
+struct Point {
+  double x;
+  double y;
+};
+
+struct Tile {
+  int x;
+  int y;
+};
+
     enum {
         MOUSEOVER = 4,
         CLICK = 5,
@@ -32,8 +42,9 @@ namespace SoMTD {
     };
 
     namespace tools {
-        std::pair<int, int> grid_to_isometric(int x_grid, int y_grid, int tile_width, int tile_height, int x0, int offset);
-        std::pair<int, int> isometric_to_grid(int isometric_x, int isometric_y, int tile_width, int tile_height, int x0, int offset);
+      Point grid_to_isometric(int x_grid, int y_grid);
+      std::pair<int, int> grid_to_isometric(int x_grid, int y_grid, int tile_width, int tile_height, int x0, int offset);
+      std::pair<int, int> isometric_to_grid(int isometric_x, int isometric_y, int tile_width, int tile_height, int x0, int offset);
     }
 }
 
