@@ -37,7 +37,6 @@ MovableUnit::MovableUnit(
     Tile e_pos,
     std::string t_path,
     std::vector< std::pair<int, int> > best_path,
-    Player* myp,
     Animation::StateStyle entity_state_style,
     int frame_per_state,
     int total_states,
@@ -54,7 +53,6 @@ MovableUnit::MovableUnit(
       m_texture(ijengine::resources::get_texture(t_path)),
       m_active(false),
       m_current_instruction(0),
-      m_player(myp),
       m_state_style(entity_state_style),
       m_frame_per_state(frame_per_state),
       m_total_states(total_states),
@@ -178,7 +176,7 @@ MovableUnit::update_self(unsigned now, unsigned) {
       }
     } else {
       if (m_current_instruction == m_labyrinth_path.size()) {
-        m_player->discount_hp(m_hp_discount_unit);
+        player::get().discount_hp(m_hp_discount_unit);
         die();
       } else {
         std::pair<int, int> pos = m_labyrinth_path[m_current_instruction];
@@ -287,7 +285,7 @@ MovableUnit::suffer(int dmg) {
   if (m_actual_hp < 1) {
     die();
     m_dead = true;
-    m_player->update_gold(m_player->gold()+gold_award());
+    player::get().update_gold(player::get().gold()+gold_award());
   }
 }
 
@@ -335,11 +333,6 @@ MovableUnit::suffer_poison(
 Tile
 MovableUnit::start_position() const {
   return m_start_position;
-}
-
-Player*
-MovableUnit::player() const {
-  return m_player;
 }
 
 Tile

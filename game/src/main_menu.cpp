@@ -11,14 +11,13 @@
 #include <ijengine/game_events_listener.h>
 #include <string>
 #include <memory>
-#include "player.h"
+#include "./player.hpp"
 #include <iostream>
 
 SoMTD::MainMenu::MainMenu() : m_done(false)
 {
         m_audio = "res/sound_efects/music/somtd-menu.ogg";
         m_next = "map001";
-        m_player = new SoMTD::Player();
         m_texture = ijengine::resources::get_texture("Menu.png");
         load_buttons();
 
@@ -27,7 +26,6 @@ SoMTD::MainMenu::MainMenu() : m_done(false)
 
 SoMTD::MainMenu::~MainMenu()
 {
-        delete m_player;
         ijengine::event::unregister_listener(this);
 }
 

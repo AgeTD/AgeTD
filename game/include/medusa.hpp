@@ -32,7 +32,7 @@ namespace SoMTD {
 class Medusa : public MovableUnit {
  public:
   Medusa(
-      Tile _origin, Tile _destination, vii _path, Player* _player);
+      Tile _origin, Tile _destination, vii _path);
 
   Animation::StateStyle _state_style() const;
   int _hp_discount_unit_win() const;

@@ -6,7 +6,6 @@
 #include <ijengine/texture.h>
 
 #include <memory>
-#include "player.h"
 #include "animation.hpp"
 #include "movable_unit.h"
 #include "projectile.h"
@@ -21,7 +20,7 @@ namespace SoMTD {
     class Tower : public ijengine::GameObject, public ijengine::GameEventsListener {
 
     public:
-        Tower(std::string texture_name, unsigned id, int x, int y, std::string m_imageselected_path, Player *p,
+        Tower(std::string texture_name, unsigned id, int x, int y, std::string m_imageselected_path,
                 Animation::StateStyle state_style, int frame_per_state, int total_states, float attackspeed, int newdamage);
         ~Tower();
 
@@ -44,7 +43,6 @@ namespace SoMTD {
         SoMTD::MovableUnit* target() const;
         double attack_speed() const;
         unsigned id() const;
-        SoMTD::Player* player() const;
         std::list<Projectile*>* projectiles() const;
         int x() const;
         int y() const;
@@ -64,7 +62,6 @@ namespace SoMTD {
         int m_priority;
         bool m_mouseover = false;
         std::string m_imageselected_path;
-        Player *m_player;
         Animation *m_animation;
         unsigned m_next_frame_time = 0;
         void build_tower(unsigned tower_id);

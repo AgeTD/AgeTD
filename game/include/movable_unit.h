@@ -30,7 +30,7 @@
 #include <set>
 #include <vector>
 
-#include "./player.h"
+#include "./player.hpp"
 #include "./game.h"
 #include "./animation.hpp"
 
@@ -53,7 +53,6 @@ class MovableUnit : public GameObject, public GameEventsListener {
       Tile e_pos,
       std::string texture_path,
       std::vector< std::pair<int, int> >,
-      Player* playerz,
       Animation::StateStyle entity_state,
       int frame_per_state,
       int total_states,
@@ -100,7 +99,6 @@ class MovableUnit : public GameObject, public GameEventsListener {
   virtual std::string _texture_path() const = 0;
   Tile start_position() const;
   Tile end_position() const;
-  Player *player() const;
 
  protected:
   bool on_event(const ijengine::GameEvent& event);
@@ -112,7 +110,6 @@ class MovableUnit : public GameObject, public GameEventsListener {
   std::shared_ptr<ijengine::Texture> m_texture;
   bool m_active;
   unsigned int m_current_instruction;
-  Player *m_player;
   Animation::StateStyle m_state_style;
   int m_frame_per_state = 1;
   int m_total_states = 1;

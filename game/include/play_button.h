@@ -6,7 +6,6 @@
 #include <ijengine/texture.h>
 #include <ijengine/level.h>
 
-#include "player.h"
 #include "menu_level.h"
 #include "level_changer_button.h"
 

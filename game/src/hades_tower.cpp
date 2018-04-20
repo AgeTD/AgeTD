@@ -19,13 +19,12 @@
 #include "./tower.h"
 
 namespace SoMTD {
-HadesTower::HadesTower(int _x, int _y, int _level, Player* _player) : Tower(
+HadesTower::HadesTower(int _x, int _y, int _level) : Tower(
     _texture_path()[_level - 1],
     _level + 0x100 - 1,
     _x,
     _y,
     _selected_texture_path()[_level - 1],
-    _player,
     static_cast<Animation::StateStyle>(1),
     _frame_per_state()[_level - 1],
     _total_states(),

@@ -26,6 +26,7 @@
 #include "./game.h"
 #include "./tower.h"
 #include "./animation.hpp"
+#include "./player.hpp"
 
 namespace SoMTD {
 Tower::Tower(std::string texture_name,
@@ -33,7 +34,6 @@ Tower::Tower(std::string texture_name,
     int _x,
     int _y,
     std::string image_selected,
-    Player *p,
     Animation::StateStyle statestyle,
     int frame_per_state,
     int total_states,
@@ -43,8 +43,7 @@ Tower::Tower(std::string texture_name,
     m_id(id),
     m_start(-1),
     m_priority(0),
-    m_imageselected_path(image_selected),
-  m_player(p) {
+    m_imageselected_path(image_selected) {
   m_attack_speed = newattackspeed;
   m_damage = newdamage;
   m_level = 1;
@@ -70,8 +69,8 @@ Tower::~Tower() {
 bool
 Tower::on_event(const ijengine::GameEvent& event) {
   if (event.id() == UPGRADE_TOWER) {
-    if (m_selected && m_player->gold() > 250) {
-      m_player->discount_gold(250);
+    if (m_selected && player::get().gold() > 250) {
+      player::get().discount_gold(250);
       level_up();
     }
   }
@@ -96,8 +95,8 @@ Tower::on_event(const ijengine::GameEvent& event) {
     if (click_as_tile.first == x() && click_as_tile.second == y()) {
       m_selected = true;
       m_animation->update_texture(m_imageselected_path);
-      m_player->state = SoMTD::Player::PlayerState::SELECTED_TOWER;
-      m_player->selected_object = this;
+      player::get().state = SoMTD::player::PlayerState::SELECTED_TOWER;
+      player::get().selected_object = this;
     } else {
       m_selected = false;
       m_animation->update_texture(m_image_path);
@@ -220,7 +219,7 @@ Tower::handle_attacking_state(unsigned now, unsigned last) {
           attack(m_target, now, last);
 
           if (m_id == 0x001)
-            m_player->increase_gold(damage());
+            player::get().increase_gold(damage());
         } else {
           m_actual_state = SoMTD::Tower::IDLE;
           m_target = nullptr;
@@ -275,13 +274,13 @@ SoMTD::Tower::attack(SoMTD::MovableUnit* newtarget, unsigned now, unsigned last)
              * is the y_position of the unit, the third argument is the
              * range of the slow, 4th argument is the dmg of the slow,
              * 5th argument is the slow coefficient, and 6th the time penalization */
-            player()->units_events()->push_back(0x000);
-            player()->event_args()->push_back((int)newtarget->x());
-            player()->event_args()->push_back((int)newtarget->y());
-            player()->event_args()->push_back(50);
-            player()->event_args()->push_back(damage());
-            player()->event_args()->push_back(600);
-            player()->event_args()->push_back(2000);
+            player::get().units_events()->push_back(0x000);
+            player::get().event_args()->push_back((int)newtarget->x());
+            player::get().event_args()->push_back((int)newtarget->y());
+            player::get().event_args()->push_back(50);
+            player::get().event_args()->push_back(damage());
+            player::get().event_args()->push_back(600);
+            player::get().event_args()->push_back(2000);
         }
         break;
 
@@ -295,13 +294,13 @@ SoMTD::Tower::attack(SoMTD::MovableUnit* newtarget, unsigned now, unsigned last)
                  * is the y_position of the unit, the third argument is the
                  * range of the slow, 4th argument is the dmg of the slow,
                  * 5th argument is the slow coefficient, and 6th the time penalization */
-                player()->units_events()->push_back(0x000);
-                player()->event_args()->push_back((int)newtarget->x());
-                player()->event_args()->push_back((int)newtarget->y());
-                player()->event_args()->push_back(50);
-                player()->event_args()->push_back(damage());
-                player()->event_args()->push_back(500);
-                player()->event_args()->push_back(3000);
+                player::get().units_events()->push_back(0x000);
+                player::get().event_args()->push_back((int)newtarget->x());
+                player::get().event_args()->push_back((int)newtarget->y());
+                player::get().event_args()->push_back(50);
+                player::get().event_args()->push_back(damage());
+                player::get().event_args()->push_back(500);
+                player::get().event_args()->push_back(3000);
             }
             break;
 
@@ -316,7 +315,7 @@ SoMTD::Tower::attack(SoMTD::MovableUnit* newtarget, unsigned now, unsigned last)
                 Projectile* p = new Projectile(target(), std::make_pair(target()->animation()->screen_position().x, target()->animation()->screen_position().y), "projectiles/projetil_zeus2.png", std::make_pair(animation()->screen_position().x, animation()->screen_position().y), 1, 1, damage());
                 m_projectiles->push_back(p);
                 m_actual_state = State::ATTACKING;
-                m_player->increase_gold(damage());
+                player::get().increase_gold(damage());
             }
             break;
 
@@ -390,11 +389,6 @@ Tower::attack_speed() const {
 unsigned
 Tower::id() const {
   return m_id;
-}
-
-Player*
-Tower::player() const {
-  return m_player;
 }
 
 int

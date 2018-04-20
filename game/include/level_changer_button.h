@@ -6,7 +6,6 @@
 #include <ijengine/texture.h>
 #include <ijengine/level.h>
 
-#include "player.h"
 #include "menu_level.h"
 
 #include <memory>
@@ -33,7 +32,6 @@ namespace SoMTD {
                 int m_x;
                 int m_y;
                 bool m_mouseover;
-                Player *m_player;
                 int m_w;
                 int m_h;
                 int m_start;

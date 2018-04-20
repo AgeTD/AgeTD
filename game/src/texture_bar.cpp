@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "game.h"
+#include "./player.hpp"
 
 #include <ijengine/canvas.h>
 #include <ijengine/engine.h>
@@ -8,13 +9,12 @@
 
 #include "texture_bar.h"
 
-SoMTD::TextureBar::TextureBar(std::string texture_name, unsigned id, int x, int y, SoMTD::Player* pl, int s_offset, int e_offset) :
+SoMTD::TextureBar::TextureBar(std::string texture_name, unsigned id, int x, int y, int s_offset, int e_offset) :
     m_id(id),
     m_x(x),
     m_y(y),
     m_start(-1),
     m_priority(500100),
-    m_player(pl),
     m_percentage(50.0),
     m_start_offset(s_offset),
     m_end_offset(e_offset)
@@ -44,7 +44,7 @@ SoMTD::TextureBar::draw_self(ijengine::Canvas *canvas, unsigned, unsigned)
 void
 SoMTD::TextureBar::update_self(unsigned, unsigned)
 {
-    if (m_player->hp() > 1) {
-        m_percentage = (m_player->hp() *100/50);
+    if (player::get().hp() > 1) {
+        m_percentage = (player::get().hp() *100/50);
     }
 }

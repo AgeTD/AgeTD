@@ -7,12 +7,10 @@
 
 #include <memory>
 
-#include "player.h"
-
 namespace SoMTD {
     class TextureBar : public ijengine::GameObject, public ijengine::GameEventsListener {
     public:
-        TextureBar(std::string texture_name, unsigned id, int x, int y, SoMTD::Player* p, int s_off, int e_off);
+        TextureBar(std::string texture_name, unsigned id, int x, int y, int s_off, int e_off);
         ~TextureBar();
 
         void draw_self(ijengine::Canvas *canvas, unsigned now, unsigned last);
@@ -30,7 +28,6 @@ namespace SoMTD {
         int m_start;
         bool m_done;
         int m_priority;
-        SoMTD::Player *m_player;
         double m_percentage;
         int m_start_offset;
         int m_end_offset;

@@ -21,7 +21,7 @@
 #include "map_level.h"
 #include "level_area.h"
 #include "tower.h"
-#include "player.h"
+#include "./player.hpp"
 #include "panel.h"
 #include "texture_bar.h"
 #include "button.h"
@@ -39,7 +39,6 @@ SoMTD::MapLevel::MapLevel(const string& next_level, const string& current_level,
     m_current(current_level),
     m_audio_path(audio_file_path),
     m_done(false),
-    m_player(new Player),
     m_start(-1),
     m_texture(nullptr)
 {
@@ -66,7 +65,6 @@ SoMTD::MapLevel::~MapLevel()
 {
     delete m_labyrinth;
     delete m_actions;
-    delete m_player;
     delete m_towers;
     ijengine::event::unregister_listener(this);
 }
@@ -132,7 +130,7 @@ SoMTD::MapLevel::actual_state() const
 void
 SoMTD::MapLevel::update_self(unsigned now, unsigned last)
 {
-    if (m_player->hp() <= 0 && actual_state() != SoMTD::MapLevel::State::OVER) {
+    if (player::get().hp() <= 0 && actual_state() != SoMTD::MapLevel::State::OVER) {
         transition_to(actual_state(), SoMTD::MapLevel::State::OVER, now, last);
         ijengine::audio::play_sound_effect("res/sound_efects/lose.ogg");
         m_next = "mainmenu";
@@ -188,31 +186,31 @@ bool
 SoMTD::MapLevel::on_event(const ijengine::GameEvent& event)
 {
     if (event.id() == SoMTD::CLICK) {
-        if (m_player->state == SoMTD::Player::PlayerState::HOLDING_BUILD) {
+        if (player::get().state == SoMTD::player::PlayerState::HOLDING_BUILD) {
             double x_pos = event.get_property<double>("x");
             double y_pos = event.get_property<double>("y");
 
             auto tile_position = SoMTD::tools::isometric_to_grid((int)x_pos, (int)y_pos, 100, 81, 1024/2, 11);
 
             if (tile_position.first >= 0 && tile_position.second >= 0 && tile_position.first < 10 && tile_position.second < 10) {
-                if (m_player->gold() >= m_player->m_desired_tower_price) {
+                if (player::get().gold() >= player::get().m_desired_tower_price) {
                     if (m_labyrinth->m_grid[tile_position.second][tile_position.first] == 0x7 ||
                             m_labyrinth->m_grid[tile_position.second][tile_position.first] == 0x11 ||
                             m_labyrinth->m_grid[tile_position.second][tile_position.first] == 0x1B) {
                         m_labyrinth->m_grid[tile_position.second][tile_position.first] = 88;
-                        build_tower(m_player->desired_tower(), tile_position.first, tile_position.second);
-                        m_player->discount_gold(m_player->m_desired_tower_price);
+                        build_tower(player::get().desired_tower(), tile_position.first, tile_position.second);
+                        player::get().discount_gold(player::get().m_desired_tower_price);
                     } else {
                         ijengine::audio::play_sound_effect("res/sound_efects/invalidaction.ogg");
                     }
                 } else {
-                    printf("You need moar gold! (%d)\n", m_player->gold());
+                    printf("You need moar gold! (%d)\n", player::get().gold());
                     ijengine::audio::play_sound_effect("res/sound_efects/invalidaction.ogg");
                 }
             } else {
                 ijengine::audio::play_sound_effect("res/sound_efects/invalidaction.ogg");
             }
-            m_player->state = SoMTD::Player::PlayerState::IDLE;
+            player::get().state = SoMTD::player::PlayerState::IDLE;
             return true;
         }
     }
@@ -250,7 +248,7 @@ SoMTD::MapLevel::load_panels()
         panel_screen_position.second = panel_list.get<int>((it + ".screen_position.y").c_str());
         panel_id = panel_list.get<unsigned>((it + ".id").c_str());
         panel_priority = panel_list.get<int>((it + ".priority").c_str());
-        SoMTD::Panel *p = new SoMTD::Panel(panel_file_path, panel_id, panel_screen_position.first, panel_screen_position.second, m_player, panel_priority);
+        SoMTD::Panel *p = new SoMTD::Panel(panel_file_path, panel_id, panel_screen_position.first, panel_screen_position.second, panel_priority);
         add_child(p);
     }
 }
@@ -303,7 +301,7 @@ SoMTD::MapLevel::load_buttons()
                 break;
         }
 
-        SoMTD::Button *b = new SoMTD::Button(button_file_path, button_id, button_screen_position.first, button_screen_position.second, button_mouseover_path, m_player, button_priority, infos, tower_description);
+        SoMTD::Button *b = new SoMTD::Button(button_file_path, button_id, button_screen_position.first, button_screen_position.second, button_mouseover_path, button_priority, infos, tower_description);
         add_child(b);
     }
 }
@@ -316,7 +314,7 @@ SoMTD::MapLevel::load_hud()
 
     std::shared_ptr< ijengine::Texture > hud_texture;
 
-    SoMTD::TextureBar *hp_bar = new SoMTD::TextureBar("hp_percentage.png", 0, 58, 22, m_player, 12, 12);
+    SoMTD::TextureBar *hp_bar = new SoMTD::TextureBar("hp_percentage.png", 0, 58, 22, 12, 12);
     hp_bar->set_priority(500020);
     add_child(hp_bar);
 
@@ -334,9 +332,9 @@ SoMTD::MapLevel::draw_self_after(ijengine::Canvas *c, unsigned a1, unsigned a2)
     current_wave()->draw_self(c, a1, a2);
     current_wave()->draw_self_after(c, a1, a2);
 
-    if (m_player->state == SoMTD::Player::PlayerState::HOLDING_BUILD) {
+    if (player::get().state == SoMTD::player::PlayerState::HOLDING_BUILD) {
         std::string tower_name = "towers/tower_";
-        tower_name.append( std::to_string(m_player->desired_tower()) );
+        tower_name.append( std::to_string(player::get().desired_tower()) );
         tower_name.append("_holding.png");
         auto mytext = ijengine::resources::get_texture(tower_name);
         auto pos = ijengine::event::mouse_position();
@@ -383,13 +381,13 @@ SoMTD::MapLevel::draw_self_after(ijengine::Canvas *c, unsigned a1, unsigned a2)
 void
 SoMTD::MapLevel::draw_selected_panel(ijengine::Canvas *c, unsigned, unsigned)
 {
-    if (player()->selected_object) {
+    if (player::get().selected_object) {
         auto font = ijengine::resources::get_font("Forelle.ttf", 30);
         c->set_font(font);
         std::ostringstream convert;
         std::string expression;
 
-        SoMTD::Tower* t = dynamic_cast<SoMTD::Tower*>(player()->selected_object);
+        SoMTD::Tower* t = dynamic_cast<SoMTD::Tower*>(player::get().selected_object);
         expression = "Damage: ";
         convert << t->damage();
         expression.append(convert.str());
@@ -416,10 +414,10 @@ SoMTD::MapLevel::load_spawners()
   Tile ori { origin.first, origin.second };
   Tile dest { destiny.first, destiny.second };
   std::vector<MovableUnit*> units = {
-    new Cyclop(ori, dest, m_labyrinth->solution, m_player),
-    new Medusa(ori, dest, m_labyrinth->solution, m_player),
-    new Harpy(ori, dest, m_labyrinth->solution, m_player),
-    new Centaur(ori, dest, m_labyrinth->solution, m_player)
+    new Cyclop(ori, dest, m_labyrinth->solution),
+    new Medusa(ori, dest, m_labyrinth->solution),
+    new Harpy(ori, dest, m_labyrinth->solution),
+    new Centaur(ori, dest, m_labyrinth->solution)
   };
 
   for (MovableUnit *unit : units) {
@@ -479,21 +477,21 @@ SoMTD::MapLevel::build_tower(unsigned tower_id, int x, int y)
     case 0x1:
     case 0x2:
     case 0x3:
-      tower = new ZeusTower(x, y, tower_id+1, m_player);
+      tower = new ZeusTower(x, y, tower_id+1);
       break;
 
     case 0x10:
     case 0x11:
     case 0x12:
     case 0x13:
-      tower = new PoseidonTower(x, y, tower_id+1-0x10, m_player);
+      tower = new PoseidonTower(x, y, tower_id+1-0x10);
       break;
 
     case 0x100:
     case 0x101:
     case 0x102:
     case 0x103:
-      tower = new HadesTower(x, y, tower_id+1-0x100, m_player);
+      tower = new HadesTower(x, y, tower_id+1-0x100);
       break;
 
     default:
@@ -540,13 +538,13 @@ SoMTD::MapLevel::handle_playing_state(unsigned now, unsigned last)
 void
 SoMTD::MapLevel::update_units_events(unsigned now, unsigned last)
 {
-    if (not player()->units_events()->empty()) {
-        for (auto event=player()->units_events()->begin(); event != player()->units_events()->end(); ++event) {
+    if (not player::get().units_events()->empty()) {
+        for (auto event=player::get().units_events()->begin(); event != player::get().units_events()->end(); ++event) {
             handle_unit_event((*event), now, last);
         }
 
-        while (not player()->units_events()->empty()) {
-            player()->units_events()->pop_back();
+        while (not player::get().units_events()->empty()) {
+          player::get().units_events()->pop_back();
         }
     }
 }
@@ -558,18 +556,18 @@ SoMTD::MapLevel::handle_unit_event(int event_id, unsigned now, unsigned last)
     int x_event, y_event, slow_range, time_penalization, slow_coeff, slow_damage;
     switch (event_id){
         case 0x000:
-            x_event = player()->event_args()->front();
-            player()->event_args()->pop_front();
-            y_event = player()->event_args()->front();
-            player()->event_args()->pop_front();
-            slow_range = player()->event_args()->front();
-            player()->event_args()->pop_front();
-            slow_damage = player()->event_args()->front();
-            player()->event_args()->pop_front();
-            slow_coeff = player()->event_args()->front();
-            player()->event_args()->pop_front();
-            time_penalization = player()->event_args()->front();
-            player()->event_args()->pop_front();
+            x_event = player::get().event_args()->front();
+            player::get().event_args()->pop_front();
+            y_event = player::get().event_args()->front();
+            player::get().event_args()->pop_front();
+            slow_range = player::get().event_args()->front();
+            player::get().event_args()->pop_front();
+            slow_damage = player::get().event_args()->front();
+            player::get().event_args()->pop_front();
+            slow_coeff = player::get().event_args()->front();
+            player::get().event_args()->pop_front();
+            time_penalization = player::get().event_args()->front();
+            player::get().event_args()->pop_front();
 
             for (auto unit=current_wave()->units()->begin(); unit != current_wave()->units()->end(); ++unit) {
                 if ((*unit)->active()) {
@@ -640,12 +638,6 @@ SoMTD::MapLevel::set_time_to_start_wave(unsigned now){
      ijengine::audio::play_sound_effect("res/sound_efects/start_waves.ogg");
   }
   return convert.str();
-}
-
-SoMTD::Player*
-SoMTD::MapLevel::player() const
-{
-    return m_player;
 }
 
 void

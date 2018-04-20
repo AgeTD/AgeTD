@@ -6,7 +6,6 @@
 #include "luascript.h"
 #include "button.h"
 #include "panel.h"
-#include "player.h"
 
 SoMTD::MenuLevel::MenuLevel(std::string mapname, std::string _new_map_path, std::string p_audio) :
     m_next(_new_map_path),
@@ -14,7 +13,6 @@ SoMTD::MenuLevel::MenuLevel(std::string mapname, std::string _new_map_path, std:
     m_done(false)
 {
     m_level_name = mapname;
-    m_player = new SoMTD::Player();
     if (mapname == "mainmenu")
         m_texture = ijengine::resources::get_texture("Menu.png");
     else if (mapname == "menucredits")
@@ -31,7 +29,6 @@ SoMTD::MenuLevel::MenuLevel(std::string mapname, std::string _new_map_path, std:
 
 SoMTD::MenuLevel::~MenuLevel()
 {
-    delete m_player;
     ijengine::event::unregister_listener(this);
 }
 
@@ -117,16 +114,10 @@ SoMTD::MenuLevel::load_buttons()
         button_id = button_list.get<int>((it + ".id").c_str());
         button_priority = button_list.get<int>((it + ".priority").c_str());
         button_mouseover_path = button_list.get<std::string>((it + ".mouseover_file_path").c_str());
-        SoMTD::Button *b = new SoMTD::Button(button_file_path, button_id, button_screen_position.first, button_screen_position.second, button_mouseover_path, m_player, button_priority, new std::vector<int>(), "");
+        SoMTD::Button *b = new SoMTD::Button(button_file_path, button_id, button_screen_position.first, button_screen_position.second, button_mouseover_path, button_priority, new std::vector<int>(), "");
         b->set_menu_level(this);
         add_child(b);
     }
-}
-
-SoMTD::Player*
-SoMTD::MenuLevel::player() const
-{
-    return m_player;
 }
 
 void

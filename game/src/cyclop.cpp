@@ -23,12 +23,11 @@ using ii = std::pair<int, int>;
 using vii = std::vector<ii>;
 
 Cyclop::Cyclop(
-    Tile _origin, Tile _destination, vii _path, Player *_player) : MovableUnit(
+    Tile _origin, Tile _destination, vii _path) : MovableUnit(
     _origin,
     _destination,
     _texture_path(),
     _path,
-    _player,
     _state_style(),
     _frame_per_state(),
     _total_states(),
@@ -101,7 +100,6 @@ Cyclop::_clone() {
   return new Cyclop(
       start_position(),
       end_position(),
-      this->m_labyrinth_path,
-      player());
+      this->m_labyrinth_path);
 }
 }  // namespace SoMTD

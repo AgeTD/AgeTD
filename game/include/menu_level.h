@@ -8,7 +8,6 @@
 #include <string>
 
 #include <memory>
-#include "player.h"
 
 namespace SoMTD {
     class MenuLevel : public ijengine::Level, public ijengine::GameEventsListener {
@@ -29,14 +28,12 @@ namespace SoMTD {
         std::string audio() const;
         std::string next() const;
         bool done() const;
-        Player *player() const;
 
     private:
         std::string m_next;
         std::string m_audio="";
         bool m_done;
         std::shared_ptr<ijengine::Texture> m_texture;
-        Player* m_player;
     };
 }
 

@@ -7,15 +7,16 @@
 #include <ijengine/texture.h>
 #include <string>
 
+#include "./player.hpp"
+
 #include "panel.h"
 
-SoMTD::Panel::Panel(std::string texture_name, unsigned id, int x, int y, Player *myplayer, int myp) :
+SoMTD::Panel::Panel(std::string texture_name, unsigned id, int x, int y, int myp) :
     m_id(id),
     m_x(x),
     m_y(y),
     m_start(-1),
-    texture_name_path(texture_name),
-    m_player(myplayer)
+    texture_name_path(texture_name)
 {
     set_priority(myp);
     m_texture = ijengine::resources::get_texture(texture_name);
@@ -40,7 +41,7 @@ SoMTD::Panel::draw_self(ijengine::Canvas *canvas, unsigned, unsigned)
     if (texture_name_path == "coins_panel.png") {
         auto font = ijengine::resources::get_font("Forelle.ttf", 40);
         canvas->set_font(font);
-        canvas->draw(std::to_string(m_player->gold()), m_x+70, m_y+10);
+        canvas->draw(std::to_string(player::get().gold()), m_x+70, m_y+10);
     }
 }
 

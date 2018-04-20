@@ -81,8 +81,8 @@ class Animation {
   int m_total_states;
   StateStyle m_state_style;
   std::shared_ptr<ijengine::Texture> m_texture;
-  ijengine::Rectangle *m_frame; // TODO: needed?
-  SoMTD::Animation::DirectionState m_actual_direction; // TODO: needed?
+  ijengine::Rectangle *m_frame;  // TODO: needed?
+  SoMTD::Animation::DirectionState m_actual_direction;  // TODO: needed?
   int m_width;
   int m_height;
 };

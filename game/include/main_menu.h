@@ -3,8 +3,6 @@
 
 #include <memory>
 
-#include "player.h"
-
 #include <ijengine/level.h>
 #include <ijengine/texture.h>
 #include <ijengine/game_events_listener.h>
@@ -35,7 +33,6 @@ namespace SoMTD {
         private:
                 string m_next;
                 string m_audio;
-                Player* m_player;
                 std::shared_ptr<ijengine::Texture> m_texture;
         };
 }

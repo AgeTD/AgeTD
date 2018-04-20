@@ -7,18 +7,18 @@
 #include <ijengine/texture.h>
 #include <bitset>
 
+#include "./player.hpp"
 #include "button.h"
 #include "luascript.h"
 #include <vector>
 #include <cmath>
 
-SoMTD::Button::Button(std::string texture_name, unsigned id, int x, int y, std::string mtexture, Player *m, int myp, std::vector<int> *args, std::string newdescription) :
+SoMTD::Button::Button(std::string texture_name, unsigned id, int x, int y, std::string mtexture, int myp, std::vector<int> *args, std::string newdescription) :
     m_texture(ijengine::resources::get_texture(texture_name)),
     m_id(id),
     m_x(x),
     m_y(y),
-    m_mouseover_texture(ijengine::resources::get_texture(mtexture)),
-    m_player(m)
+    m_mouseover_texture(ijengine::resources::get_texture(mtexture))
 {
     m_description = newdescription;
     set_priority(myp);
@@ -58,9 +58,9 @@ SoMTD::Button::on_event(const ijengine::GameEvent& event)
 
         if (x_pos >= m_x && x_pos<m_x+m_texture->w() && y_pos>m_y && y_pos<m_y+m_texture->h()) {
             if (m_id < 0xF) {
-                m_player->state = SoMTD::Player::PlayerState::OPENED_TOWER_PANEL;
-                m_player->open_tower_panel(m_id);
-                return true;
+              player::get().state = SoMTD::player::PlayerState::OPENED_TOWER_PANEL;
+              player::get().open_tower_panel(m_id);
+              return true;
             }
             if (m_menu_level != nullptr && m_menu_level && m_menu_level->m_level_name == "menuoptions") {
                 switch (m_id) {
@@ -145,16 +145,16 @@ SoMTD::Button::on_event(const ijengine::GameEvent& event)
                 case 0x2001:
                 case 0x2002:
                 case 0x2003:
-                    if (m_player->state == Player::PlayerState::OPENED_TOWER_PANEL) {
+                    if (player::get().state == player::PlayerState::OPENED_TOWER_PANEL) {
                         upgrade_state = (*m_infos)[1];
-                        result1 = (*m_infos)[1] & m_player->upgrade_state().to_ulong();
-                        if ((m_player->gold() >= (*m_infos)[0]) and result1) {
-                            m_player->state = Player::PlayerState::HOLDING_BUILD;
-                            desired_tower = m_id - 0x2000 + pow(16, m_player->tower_panel_id());
-                            if (m_player->tower_panel_id() == 0) { 
+                        result1 = (*m_infos)[1] & player::get().upgrade_state().to_ulong();
+                        if ((player::get().gold() >= (*m_infos)[0]) and result1) {
+                          player::get().state = player::PlayerState::HOLDING_BUILD;
+                            desired_tower = m_id - 0x2000 + pow(16, player::get().tower_panel_id());
+                            if (player::get().tower_panel_id() == 0) { 
                               desired_tower -= 1;
                             }
-                            m_player->update_desired_tower(desired_tower, (*m_infos)[0]);
+                            player::get().update_desired_tower(desired_tower, (*m_infos)[0]);
                         } else {
                             printf("not enough gold or not requirements meet..\n");
                             ijengine::audio::play_sound_effect("res/sound_efects/invalidaction.ogg");
@@ -168,9 +168,9 @@ SoMTD::Button::on_event(const ijengine::GameEvent& event)
                     last_bit_button = (m_id & 0xF);
                     upgrade_state.reset();
                     upgrade_state.set(1+last_bit_button);
-                    if (m_player->gold() >= (*m_infos)[0] && ((*m_infos)[1] & m_player->upgrade_state().to_ulong())) {
-                        m_player->research(upgrade_state);
-                        m_player->discount_gold((*m_infos)[0]);
+                    if (player::get().gold() >= (*m_infos)[0] && ((*m_infos)[1] & player::get().upgrade_state().to_ulong())) {
+                      player::get().research(upgrade_state);
+                      player::get().discount_gold((*m_infos)[0]);
                     } else {
                         printf("not enough gold or not met requirements..\n");
                         ijengine::audio::play_sound_effect("res/sound_efects/invalidaction.ogg");
@@ -189,7 +189,7 @@ void
 SoMTD::Button::draw_self(ijengine::Canvas *c, unsigned, unsigned)
 {
     if (m_id >= 0x2000 && m_id < 0x2100) {
-        if (m_player->state == SoMTD::Player::PlayerState::OPENED_TOWER_PANEL) {
+        if (player::get().state == SoMTD::player::PlayerState::OPENED_TOWER_PANEL) {
             if (m_mouseover)
                 c->draw(m_mouseover_texture.get(), m_x, m_y);
             else
@@ -213,7 +213,7 @@ SoMTD::Button::set_menu_level(SoMTD::MenuLevel* ml)
 void
 SoMTD::Button::draw_self_after(ijengine::Canvas *c, unsigned, unsigned) {
   // TODO: rewrite this
-  if (m_id >= 0x2000 && m_id < 0x2100 && m_player->state == SoMTD::Player::PlayerState::OPENED_TOWER_PANEL) {
+  if (m_id >= 0x2000 && m_id < 0x2100 && player::get().state == SoMTD::player::PlayerState::OPENED_TOWER_PANEL) {
     // "it is a tower.."
     auto font = ijengine::resources::get_font("Inconsolata-Regular.ttf", 20);
     c->set_font(font);
@@ -226,15 +226,15 @@ SoMTD::Button::draw_self_after(ijengine::Canvas *c, unsigned, unsigned) {
     expression.append(convert.str());
     convert.clear();
     convert.str("");
-    int panel_id = m_player->tower_panel_id();
+    int panel_id = player::get().tower_panel_id();
     if (panel_id != 0)
-      panel_id = 8 << m_player->tower_panel_id();
+      panel_id = 8 << player::get().tower_panel_id();
     panel_id |= (m_id & 0xF);
 
-    if (m_player->tower_panel_id() == 0) {
+    if (player::get().tower_panel_id() == 0) {
       convert << m_id - 8192;
     } else {
-      convert << pow(16, m_player->tower_panel_id()) - 8192 + m_id;
+      convert << pow(16, player::get().tower_panel_id()) - 8192 + m_id;
     }
 
     tower_name.append(convert.str());
@@ -245,7 +245,7 @@ SoMTD::Button::draw_self_after(ijengine::Canvas *c, unsigned, unsigned) {
     c->draw(expression, m_x+50, m_y+90);
     if (m_mouseover) {
       int last_bit_button = (m_id & 0xF);
-      int last_bit_panel = m_player->tower_panel_id() & 0xF;
+      int last_bit_panel = player::get().tower_panel_id() & 0xF;
       last_bit_panel = last_bit_panel << 4;
       int desired_tower = last_bit_panel | last_bit_button;
       LuaScript towers_list("lua-src/Tower.lua");

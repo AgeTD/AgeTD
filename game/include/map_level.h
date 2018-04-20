@@ -11,7 +11,6 @@
 #include <fstream>
 #include <vector>
 
-#include "player.h"
 #include "movable_unit.h"
 #include "luascript.h"
 #include "labyrinth.h"
@@ -46,7 +45,6 @@ namespace SoMTD {
         void load_panels();
         void load_buttons();
         void load_spawners();
-        Player *player() const;
 
     protected:
         void update_self(unsigned now, unsigned last);
@@ -60,7 +58,6 @@ namespace SoMTD {
         std::string m_current;
         std::string m_audio_path;
         bool m_done;
-        Player *m_player;
         int m_start;
         std::shared_ptr< ijengine::Texture > m_texture;
         LuaScript *m_actions;

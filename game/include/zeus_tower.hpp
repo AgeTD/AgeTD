@@ -22,12 +22,11 @@
 #include <vector>
 
 #include "./tower.h"
-#include "./player.h"
 
 namespace SoMTD {
 class ZeusTower : public Tower {
  public:
-  ZeusTower(int _x, int _y, int _level, Player* _player);
+  ZeusTower(int _x, int _y, int _level);
 
   std::vector<std::string> _texture_path() const;
   std::vector<std::string> _selected_texture_path() const;
